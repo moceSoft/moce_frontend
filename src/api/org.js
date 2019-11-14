@@ -7,6 +7,21 @@ export function getOrgs() {
   })
 }
 
+export function getList() {
+  return request({
+    url: 'v1/org/list',
+    method: 'get',
+  })
+}
+
+
+export function getPositions() {
+  return request({
+    url: 'v1/org/positions',
+    method: 'get',
+  })
+}
+
 export function createOrg(data) {
   return request({
     url: 'v1/org/create',

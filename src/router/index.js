@@ -86,16 +86,40 @@ export const constantRoutes = [
   {
     path: '/work',
     component: Layout,
+    redirect: '/work/index',
+    meta: {
+      title: '工作事项',
+      icon: 'documentation',
+      roles: ['admin', 'editor'] // you can set roles in root nav
+    },
     children: [
       {
         path: 'index',
         component: () => import('@/views/work/index'),
-        name: '工作事项',
-        meta: { title: '工作事项', icon: 'documentation', affix: true }
+        name: '我的工作',
+        meta: { title: '我的工作', affix: true }
+      },
+      {
+        path: 'assign',
+        component: () => import('@/views/work/assign'),
+        name: '指派工作',
+        meta: { title: '指派工作' }
       }
     ]
   },
 
+  {
+    path: '/project',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/project/index'),
+        name: '项目',
+        meta: { title: '公司项目', icon: 'tab', affix: true }
+      },
+    ]
+  },
   {
     path: '/org',
     component: Layout,
@@ -111,12 +135,24 @@ export const constantRoutes = [
   {
     path: '/user',
     component: Layout,
+    redirect: '/user/index',
+    meta: {
+      title: '员工管理',
+      icon: 'user',
+      roles: ['admin', 'editor'] // you can set roles in root nav
+    },
     children: [
       {
         path: 'index',
         component: () => import('@/views/user/index'),
-        name: '员工管理',
-        meta: { title: '员工管理', icon: 'user' }
+        name: '员工列表',
+        meta: { title: '员工列表' }
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/user/create'),
+        name: '新增员工',
+        meta: { title: '新增员工' }
       }
     ]
   },

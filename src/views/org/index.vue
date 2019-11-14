@@ -1,45 +1,56 @@
 <template>
   <div class="app-container flex-center">
-    <OrgTree :data="tree" :zoom=true @on-node-click="click"/>
+    <OrgTree 
+      :data="tree" 
+      :zoom=true 
+      :node-render="renderNode"
+      label-class-name=""
+    />
     <Drawer :show="showDrawer" @close="close">
+
       <div class="drawer_container">
-          <div>
-            <h3 class="drawer-title">修改 <b>{{item.label}}</b> 信息</h3>
-            <div class="drawer-item">
-              <el-input 
-                v-model="item.label" 
-                placeholder="请输入部门名称"
-                name="update_item_label"
-              >
-                  
-              </el-input>
-              <input v-model="item.id" type="hidden">
-              <input v-model="item.parent_id" type="hidden">
-            </div>
-            <div class="drawer-item">
-              <el-input v-model="item.description" type="textarea" :rows="2" placeholder="请输入部门简介"></el-input>
-            </div>
-            <el-button @click="update" icon="el-icon-check">保存</el-button>
-            <el-button type="danger" @click="deleteItem" icon="el-icon-delete">删除</el-button>
-          </div>
-          <el-divider></el-divider>
-          <div style="margin-top:40px">
-            <h3 class="drawer-title">新增 <b>{{item.label}}</b> 下级部门</h3>
-            <div class="drawer-item">
-              <el-input 
-                v-model="newItem.label" 
-                name="create_item_label" 
-                placeholder="请输入部门名称"
-              >
-              </el-input>
-              <input v-model="newItem.parent_id" type="hidden">
-            </div>
-            <div class="drawer-item">
-              <el-input v-model="newItem.description" type="textarea" :rows="2" placeholder="请输入部门简介"></el-input>
-            </div>
-            <el-button @click="create" icon="el-icon-check">保存</el-button>
-          </div>
+          <el-tabs :value="panel">
+            <el-tab-pane label="修改信息" name="update" v-show="item.id > 0">
+              <h3 class="drawer-title">修改 <b>{{item.name}}</b> 信息</h3>
+              <div class="drawer-item">
+                <el-input 
+                  v-model="item.name" 
+                  placeholder="请输入部门名称"
+                  name="update_item_label"
+                >
+                </el-input>
+                <input v-model="item.id" type="hidden">
+                <input v-model="item.parent_id" type="hidden">
+              </div>
+              <div class="drawer-item">
+                <el-input v-model="item.description" type="textarea" :rows="2" placeholder="请输入部门简介"></el-input>
+              </div>
+              <el-button @click="update" icon="el-icon-check">保存</el-button>
+              <!-- <el-button type="danger" @click="deleteItem" icon="el-icon-delete">删除</el-button> -->
+
+            </el-tab-pane>
+            <el-tab-pane label="新增下级部门" name="newChild">
+              
+              <h3 class="drawer-title">新增 <b>{{item.name}}</b> 下级部门</h3>
+              <div class="drawer-item">
+                <el-input 
+                  v-model="newItem.name" 
+                  name="create_item_label" 
+                  placeholder="请输入部门名称"
+                >
+                </el-input>
+                <input v-model="newItem.parent_id" type="hidden">
+              </div>
+              <div class="drawer-item">
+                <el-input v-model="newItem.description" type="textarea" :rows="2" placeholder="请输入部门简介"></el-input>
+              </div>
+              <el-button @click="create" icon="el-icon-check">保存</el-button>
+
+            </el-tab-pane>
+            <!-- <el-tab-pane label="职位管理" name="third">职位管理</el-tab-pane> -->
+          </el-tabs>
       </div>
+
     </Drawer>
   </div>
 </template>
@@ -47,9 +58,10 @@
 <script>
 import OrgTree from 'v-org-tree'
 import 'v-org-tree/dist/v-org-tree.css'
-import { getOrgs, createOrg, updateOrg, deleteOrg } from '@/api/org'
+import { getPositions, createOrg, updateOrg, deleteOrg } from '@/api/org'
 import Drawer from '@/components/Drawer'
 import { Message } from 'element-ui'
+import orgNode from './orgNode'
 
 export default {
   name: 'OrgTreeView',
@@ -63,14 +75,15 @@ export default {
       showDrawer : false,
       item : {
         'id' : 0,
-        'label' : '',
+        'name' : '',
         'description' : '',
       },
       newItem : {
         'parent_id' : 0,
-        'label' : '',
+        'name' : '',
         'description' : '',
       },
+      panel: ''
     }
   },
   created(){
@@ -78,7 +91,7 @@ export default {
   },
   methods: {
     fetchData() {
-      getOrgs().then(response => {
+      getPositions().then(response => {
         this.tree = (response.data[0]);
       })
     },
@@ -92,8 +105,9 @@ export default {
     },
     update(){
       if(this.validate(this.item)){
-        updateOrg({...this.item, 'name' : this.item.label}).then(response=>{
+        updateOrg({...this.item}).then(response=>{
           this.showDrawer = false;
+          this.tree = (response.data[0]);
           Message({
             message: '修改部门信息成功',
             type: 'success',
@@ -104,12 +118,12 @@ export default {
     },
     create(){
       if(this.validate(this.newItem, true)){
-        createOrg({...this.newItem, 'name' : this.newItem.label}).then(response=>{
+        createOrg({...this.newItem}).then(response=>{
           this.tree = (response.data[0]);
           this.showDrawer = false;
           this.newItem = {
             'parent_id' : 0,
-            'label' : '',
+            'name' : '',
             'description' : '',
           }
           Message({
@@ -121,18 +135,29 @@ export default {
       }
     },
     deleteItem(){
-      deleteOrg(this.item).then(response=>{
-        this.tree = (response.data[0]);
-          this.showDrawer = false;
-          Message({
-            message: '已成删除部门',
-            type: 'success',
-            duration: 4 * 1000
-          })
+      this.$confirm('下级部门将会并入上级部门?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteOrg(this.item).then(response=>{
+          this.tree = (response.data[0]);
+            this.showDrawer = false;
+            Message({
+              message: '已成删除部门',
+              type: 'success',
+              duration: 4 * 1000
+            })
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });          
       });
     },
     validate(item, create = false){
-      if(!item.label){
+      if(!item.name){
         Message({
           message: '请填写部门名称',
           type: 'error',
@@ -155,11 +180,43 @@ export default {
         }
       }
       return true;
+    },
+    renderNode(h, node){
+      let model = {
+        'id' : node.id,
+        'name' : node.name,
+        'positions' : node.positions
+      }
+      return (
+        <orgNode 
+          node={node} 
+          deleteNode={this.deleteItem}
+          newChildNode={this.newNode}
+          updateNode={this.updateNode}
+        />
+      )
+    },
+    newNode(item){
+      this.item= Object.assign({}, item);
+      this.showDrawer = true;
+      this.newItem.parent_id = item.id;
+      this.panel = 'newChild'
+    },
+    updateNode(item){
+      this.item = Object.assign({}, item);
+      this.showDrawer = true;
+      this.newItem.parent_id = item.id;
+      this.panel = 'update'
     }
   }
 }
 </script>
 <style>
+.org-tree-node-label-inner{
+  padding:0;
+  border:none;
+  box-shadow: none;
+}
 .flex-center{
   display: flex;
   justify-content: space-around;
@@ -183,9 +240,5 @@ export default {
   color:#666;
   font-size:14px;
 }
-.org-tree-node-label:hover{
-  cursor: pointer;
-  background-color: rgb(217, 236, 255);
-  color:#333;
-}
+
 </style>

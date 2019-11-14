@@ -29,3 +29,11 @@ export function fetchList(data){
     data
   })
 }
+
+export function createUser(data){
+  return request({
+    url: 'v1/user/create',
+    method: 'post',
+    data
+  })
+}

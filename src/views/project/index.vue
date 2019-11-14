@@ -32,50 +32,19 @@
       </el-table-column> 
       <el-table-column
         prop="name"
-        label="姓名">
-      </el-table-column>
-      <el-table-column
-        prop="no"
-        label="工号">
-      </el-table-column>
-      <el-table-column
-        prop="phone"
-        label="联系电话"
-        width="120">
-      </el-table-column>
-      <el-table-column
-        prop="department"
-        label="所属部门">
-        <template slot-scope="scope">
-          <span>{{ scope.row.department | getDepartment }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="position"
-        label="职位">
-        <template slot-scope="scope">
-          <span>{{ scope.row.position | getPosition }}</span>
-        </template>
+        label="项目名称">
       </el-table-column>
       <el-table-column
         prop="created_time"
-        label="入职时间"
+        label="创建时间"
         width="160" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.create_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column
-        prop="last_login_time"
-        label="上次登录"
-        width="160" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.last_login_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
         prop="status"
-        label="当前状态" align="center"> 
+        label="当前状态" width="160" align="center"> 
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
             {{ row.status | statusText }}
@@ -96,7 +65,7 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/user'
+import { fetchList } from '@/api/project'
 import { parseTime } from '@/utils'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -116,7 +85,7 @@ export default {
     statusText(status) {
       const statusTextMap = {
         1 : '正常',
-        0 : '已离职'
+        0 : '已归档'
       }
       return statusTextMap[status]
     },
@@ -136,7 +105,7 @@ export default {
       tableData: [],
       query: {
         name : '',
-        phone : '',
+        status : '',
         page: 1,
         limit: 30,
       },
