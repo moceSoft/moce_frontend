@@ -1,10 +1,15 @@
 import request from '@/utils/request'
 
-export function getPositions(data) {
+export function getPositions(query) {
+  let url = 'v1/position'
+  let params = []
+  Object.keys(query).map( key =>{
+    params.push( key + '=' + query[key])
+  })
+  url += "?"+params.join("?")
   return request({
-    url: 'v1/position',
+    url: url,
     method: 'get',
-    data
   })
 }
 

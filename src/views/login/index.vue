@@ -3,7 +3,8 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">系统登录</h3>
+        <img :src="logo" style="width:80px">
+        <h3 class="title">智能办公系统登录</h3>
       </div>
 
       <el-form-item prop="username">
@@ -67,6 +68,7 @@
 <script>
 import { validUsername } from '@/utils/validate'
 import SocialSign from './components/SocialSignin'
+import logo from '@/assets/logo.png'
 
 export default {
   name: 'Login',
@@ -87,6 +89,7 @@ export default {
       }
     }
     return {
+      logo : logo,
       loginForm: {
         username: '',
         password: ''
@@ -288,11 +291,12 @@ $light_gray:#eee;
 
   .title-container {
     position: relative;
+    text-align: center;
 
     .title {
       font-size: 26px;
       color: $light_gray;
-      margin: 0px auto 40px auto;
+      margin: 15px auto 40px auto;
       text-align: center;
       font-weight: bold;
     }

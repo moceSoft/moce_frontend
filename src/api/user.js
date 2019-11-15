@@ -22,11 +22,16 @@ export function logout() {
   })
 }
 
-export function fetchList(data){
+export function fetchList(query){
+  let url = 'v1/user'
+  let params = []
+  Object.keys(query).map( key =>{
+    params.push( key + '=' + query[key]);
+  })
+  url += "?"+params.join("?");
   return request({
-    url: 'v1/user',
-    method: 'get',
-    data
+    url: url,
+    method: 'get'
   })
 }
 

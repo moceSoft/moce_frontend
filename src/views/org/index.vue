@@ -83,7 +83,7 @@ export default {
         'name' : '',
         'description' : '',
       },
-      panel: ''
+      panel: 'update'
     }
   },
   created(){
@@ -134,13 +134,13 @@ export default {
         });
       }
     },
-    deleteItem(){
+    deleteItem(item){
       this.$confirm('下级部门将会并入上级部门?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteOrg(this.item).then(response=>{
+        deleteOrg(item).then(response=>{
           this.tree = (response.data[0]);
             this.showDrawer = false;
             Message({
@@ -198,15 +198,15 @@ export default {
     },
     newNode(item){
       this.item= Object.assign({}, item);
+      this.panel = 'newChild'
       this.showDrawer = true;
       this.newItem.parent_id = item.id;
-      this.panel = 'newChild'
     },
     updateNode(item){
       this.item = Object.assign({}, item);
+      this.panel = 'update'
       this.showDrawer = true;
       this.newItem.parent_id = item.id;
-      this.panel = 'update'
     }
   }
 }
@@ -220,21 +220,6 @@ export default {
 .flex-center{
   display: flex;
   justify-content: space-around;
-}
-.drawer_container{
-  padding:20px;
-}
-.drawer-title {
-  margin-bottom: 12px;
-  color: rgba(0, 0, 0, .85);
-  font-size: 14px;
-  line-height: 22px;
-  font-weight: 300;
-}
-.drawer-item {
-  color: rgba(0, 0, 0, .65);
-  font-size: 14px;
-  padding: 12px 0;
 }
 .org-tree-node-label{
   color:#666;

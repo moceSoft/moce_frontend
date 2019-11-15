@@ -115,7 +115,7 @@ export default {
     },
     statusText(status) {
       const statusTextMap = {
-        1 : '正常',
+        1 : '在职',
         0 : '已离职'
       }
       return statusTextMap[status]

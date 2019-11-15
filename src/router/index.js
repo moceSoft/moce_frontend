@@ -89,7 +89,7 @@ export const constantRoutes = [
     redirect: '/work/index',
     meta: {
       title: '工作事项',
-      icon: 'documentation',
+      icon: 'list',
       roles: ['admin', 'editor'] // you can set roles in root nav
     },
     children: [
@@ -128,7 +128,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/org/index'),
         name: '组织架构',
-        meta: { title: '组织架构', icon: 'documentation' }
+        meta: { title: '组织架构', icon: 'tree' }
       }
     ]
   },
@@ -153,6 +153,56 @@ export const constantRoutes = [
         component: () => import('@/views/user/create'),
         name: '新增员工',
         meta: { title: '新增员工' }
+      }
+    ]
+  },
+  {
+    path: '/notice',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/org/index'),
+        name: '发布通知',
+        meta: { title: '发布通知', icon: 'message' }
+      }
+    ]
+  },
+
+
+  {
+    path: '/advance',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/org/index'),
+        name: '高级应用',
+        meta: { title: '高级应用', icon: 'component' }
+      }
+    ]
+  },
+  {
+    path: '/setting',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/org/index'),
+        name: '系统设置',
+        meta: { title: '系统设置', icon: 'edit' }
+      }
+    ]
+  },
+  {
+    path: '/help',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/org/index'),
+        name: '帮助',
+        meta: { title: '帮助', icon: 'education' }
       }
     ]
   },

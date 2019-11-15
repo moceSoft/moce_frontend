@@ -14,6 +14,8 @@
           v-for="item in node.positions"
           :disable-transitions="false"
           closable
+          @click="setPermission(item)"
+          @close="deletePosition(item)"
           >
           {{item.name}}
         </el-tag>
@@ -23,8 +25,8 @@
           v-model="inputValue"
           ref="positionInput"
           size="mini"
-          @keyup.enter.native="handleInputConfirm"
-          @blur="handleInputConfirm"
+          @keyup.enter.native="handleInputConfirm(node)"
+          @blur="handleInputConfirm(node)"
         >
         </el-input>
         <el-button v-else class="button-new-tag" size="mini" @click="showInput">+ 添加职位</el-button>
@@ -33,7 +35,7 @@
 </template>
 
 <script>
-
+import {createPosition} from '@/api/position'
 export default {
   name: 'OrgNode',
   props: {
@@ -75,19 +77,47 @@ export default {
         this.$refs.positionInput.$refs.input.focus();
       });
     },
-    handleInputConfirm() {
+    handleInputConfirm(node) {
       let inputValue = this.inputValue;
       if (inputValue) {
-        this.node.positions.push({ "name" :inputValue });
+        createPosition({
+          org_tree : node.id,
+          name : inputValue
+        }).then(response=>{
+          this.node.positions.push({ "name" :inputValue });
+          this.inputVisible = false;
+          this.inputValue = '';
+          this.$confirm("是否现在为"+inputValue+"设置相关权限", '已成功添加', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'success'
+          }).then(() => {
+            
+          }).catch(() => {
+            this.$message({
+              type: 'primary',
+              message: '已取消设置权限'
+            });          
+          });
+        })
+      }else{
+        this.inputVisible = false;
+        this.inputValue = '';
       }
-      this.inputVisible = false;
-      this.inputValue = '';
+
+    },
+    setPermission(item){
+
+    },
+    deletePosition(item){
+
     }
   }
 }
 </script>
 <style>
   .org_node{
+    max-width:360px;
   }
   .node_header{
     display:flex;
@@ -126,4 +156,5 @@ export default {
     margin-left: 10px;
     vertical-align: bottom;
   }
+
 </style>

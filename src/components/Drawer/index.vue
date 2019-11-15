@@ -90,12 +90,35 @@ export default {
   position: relative;
   width: calc(100% - 15px);
 }
-
+.rightPanel-items{
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
 .drawer_clost_btn{
   position:absolute;
   bottom:0;
   padding:18px;
   width:100%;
+}
+
+.drawer_container{
+  padding:20px;
+}
+.drawer-title {
+  margin-bottom: 12px;
+  color: rgba(0, 0, 0, .85);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 300;
+  margin-top: 0;
+  border-bottom: 1px solid #e7e7e7;
+  padding-bottom: 12px;
+}
+.drawer-item {
+  color: rgba(0, 0, 0, .65);
+  font-size: 14px;
+  padding: 12px 0;
 }
 </style>
 
