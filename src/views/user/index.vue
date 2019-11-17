@@ -20,14 +20,14 @@
 
     <el-table
       :data="tableData"
-      border
       style="width: 100%"
       @header-click="order"
+      v-loading="loading"
       >
       <el-table-column prop="avatar" label="图片" width="80" align="center">
         <!-- 图片的显示 -->
         <template   slot-scope="scope">            
-          <img :src="scope.row.avatar?scope.row.avatar:'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'"  width="60" height="60" />
+          <img :src="scope.row.avatar?scope.row.avatar:(scope.row.sex===1?avatar_female:avatar_male)"  width="60" height="60" />
         </template>         
       </el-table-column> 
       <el-table-column
@@ -57,20 +57,28 @@
           <span>{{ scope.row.position | getPosition }}</span>
         </template>
       </el-table-column>
+
+      <el-table-column
+        prop="sex"
+        label="性别">
+        <template slot-scope="scope">
+          <span>{{ scope.row.sex | getGender }}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="created_time"
         label="入职时间"
         width="160" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.create_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.create_time | parseTime('{y}年{m}月{d}日') }}</span>
         </template>
       </el-table-column>
       <el-table-column
         prop="last_login_time"
         label="上次登录"
-        width="160" align="center">
+        width="180" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.last_login_time | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.last_login_time | timeFormatter('{y}年{m}月{d}日 {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -82,11 +90,18 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="查看" align="center" width="100" class-name="small-padding fixed-width">
+      <el-table-column label="查看" align="center" width="240" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="view(row)">
-            查看
-          </el-button>
+          <router-link :to="'/user/view/'+row.id">
+            <el-button  plain size="mini" >
+              查看
+            </el-button>
+          </router-link>
+          <router-link :to="'/user/update/'+row.id">
+            <el-button type="primary" plain size="mini">
+              编辑
+            </el-button>
+          </router-link>
         </template>
       </el-table-column>
     </el-table>
@@ -97,9 +112,11 @@
 
 <script>
 import { fetchList } from '@/api/user'
-import { parseTime } from '@/utils'
+import { parseTime, timeFormatter, formatTime } from '@/utils'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import avatar_female from '@/assets/images/avatar_female.png'
+import avatar_male from '@/assets/images/avatar_male.png'
 
 export default {
   name: 'UserList',
@@ -129,6 +146,21 @@ export default {
       if(position == 0){
        return '未指派职位' 
       }
+    },
+    getGender(sex){
+      const gendaerMap = {
+        0: '未知',
+        1: '女性',
+        2: '男性'
+      }
+      return gendaerMap[sex];
+    },
+    timeFormatter(time, cFormat) {
+      if(time > 0){
+        return parseTime(time, cFormat)
+      }else{
+        return '未曾登陆';
+      }
     }
   },
   data() {
@@ -140,7 +172,10 @@ export default {
         page: 1,
         limit: 30,
       },
+      loading:true,
       total : 0,
+      avatar_male : avatar_male,
+      avatar_female : avatar_female
     }
   },
   created(){
@@ -151,12 +186,12 @@ export default {
       fetchList(this.query).then(response => {
         this.tableData = response.data.list;
         this.total = parseInt(response.data.count);
+        this.loading = false;
+      }).catch(error=>{
+        this.loading = false;
       })
     },
     order(column, event){
-
-    },
-    view(user){
 
     },
     handleFilter(){

@@ -2,34 +2,25 @@
   <div class="org_node">
       <div class="node_header">
         <h3 :style="{margin: node.id?'0 50px 0 0':'0 20px'}">{{node.name}}</h3>
-        <div>
+        <div class="node_btns">
           <el-button icon="el-icon-plus" circle plain size="mini" @click="newChild"></el-button>
           <el-button v-if="node.id != 0"  type="primary" icon="el-icon-edit" circle plain size="mini" @click="update"></el-button>
           <el-button v-if="node.id != 0" type="danger" icon="el-icon-delete" circle plain size="mini" @click="del"></el-button>
         </div>
       </div>
       <div class="org_positions" v-if="node.id != 0" >
-        <el-tag
-          :key="item.id"
-          v-for="item in node.positions"
-          :disable-transitions="false"
-          closable
-          @click="setPermission(item)"
-          @close="deletePosition(item)"
-          >
-          {{item.name}}
-        </el-tag>
-        <el-input
-          class="input-new-tag"
-          v-if="inputVisible"
-          v-model="inputValue"
-          ref="positionInput"
-          size="mini"
-          @keyup.enter.native="handleInputConfirm(node)"
-          @blur="handleInputConfirm(node)"
+        <router-link :to="'/org/view/'+item.id" 
+            :key="item.id"
+            v-for="item in node.positions"
         >
-        </el-input>
-        <el-button v-else class="button-new-tag" size="mini" @click="showInput">+ 添加职位</el-button>
+          <el-button size="mini" >
+            {{item.name}}
+          </el-button>
+        </router-link>
+        
+        <router-link :to="'/org/new/'+node.id">
+          <el-button class="button-new-tag" size="mini">+ 添加职位</el-button>
+        </router-link>
       </div>
   </div>
 </template>
@@ -50,12 +41,18 @@ export default {
     },
     updateNode:{
       type : Function
-    }
+    },
+    newPosition:{
+      type : Function
+    },
+    updatePosition:{
+      type : Function
+    },
   },
   data(){
     return {
-      inputValue : '',
-      inputVisible : false
+      // inputValue : '',
+      // inputVisible : false
     }
   },
   created(){
@@ -72,10 +69,10 @@ export default {
       this.newChildNode(this.node);
     },
     showInput() {
-      this.inputVisible = true;
-      this.$nextTick(_ => {
-        this.$refs.positionInput.$refs.input.focus();
-      });
+      // this.inputVisible = true;
+      // this.$nextTick(_ => {
+      //   this.$refs.positionInput.$refs.input.focus();
+      // });
     },
     handleInputConfirm(node) {
       let inputValue = this.inputValue;
@@ -111,29 +108,42 @@ export default {
     },
     deletePosition(item){
 
+    },
+    onUpdatePosition(position){
+      this.updatePosition(position);
     }
   }
 }
 </script>
-<style>
-  .org_node{
-    max-width:360px;
-  }
+<style >
   .node_header{
     display:flex;
     justify-content: space-between;
     align-items: center;
+  }
+  .org_node{
+    max-width:300px !important;
   }
   .org_node h3{
     color:#606266;
     text-align:center;
     font-weight: 400;
   }
+  .node_btns{
+    display: flex;
+    flex-wrap: nowrap;
+  }
   .org_positions{
     padding-top:10px;
     margin-top:10px;
     border-top:1px solid #ebebeb;
     display: flex;
+    max-width: 300px;
+    flex-wrap: wrap;
+  }
+  .org_positions>*{
+    margin-right:3px;
+    margin-bottom:3px;
   }
   .position_node{
     padding:5px 10px;
@@ -141,20 +151,11 @@ export default {
     font-size:14px;
     color:#666;
   }
-  .el-tag + .el-tag {
-    margin-left: 10px;
-  }
-  .button-new-tag {
-    margin-left: 10px;
-    height: 30px;
-    line-height: 28px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-tag {
-    width: 90px;
-    margin-left: 10px;
-    vertical-align: bottom;
-  }
 
+
+</style>
+<style scoped>
+.org_positions .el-button + .el-button {
+    margin-left: 0;
+}
 </style>

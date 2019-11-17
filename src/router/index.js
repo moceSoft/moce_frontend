@@ -123,12 +123,28 @@ export const constantRoutes = [
   {
     path: '/org',
     component: Layout,
+    name: '组织架构',
+    meta: { title: '组织架构', icon: 'tree' },
     children: [
       {
         path: 'index',
         component: () => import('@/views/org/index'),
         name: '组织架构',
-        meta: { title: '组织架构', icon: 'tree' }
+        meta: { title: '组织架构', }
+      },
+      {
+        path: 'new/:id',
+        component: () => import('@/views/org/create'),
+        name: '增加职位',
+        meta: { title: '增加职位'},
+        hidden: true
+      },
+      {
+        path: 'view/:id',
+        component: () => import('@/views/org/view'),
+        name: '查看职位',
+        meta: { title: '查看职位'},
+        hidden: true
       }
     ]
   },
@@ -153,7 +169,21 @@ export const constantRoutes = [
         component: () => import('@/views/user/create'),
         name: '新增员工',
         meta: { title: '新增员工' }
-      }
+      },
+      {
+        path: 'update/:id',
+        component: () => import('@/views/user/update'),
+        name: '更新员工信息',
+        meta: { title: '更新员工信息' },
+        hidden: true
+      },
+      {
+        path: 'view/:id',
+        component: () => import('@/views/user/view'),
+        name: '查看员工信息',
+        meta: { title: '查看员工信息' },
+        hidden: true
+      },
     ]
   },
   {

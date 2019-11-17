@@ -6,7 +6,15 @@ export function getPositions(query) {
   Object.keys(query).map( key =>{
     params.push( key + '=' + query[key])
   })
-  url += "?"+params.join("?")
+  url += "?"+params.join("&")
+  return request({
+    url: url,
+    method: 'get',
+  })
+}
+
+export function getInfo(id){
+  let url = 'v1/position/'+id
   return request({
     url: url,
     method: 'get',

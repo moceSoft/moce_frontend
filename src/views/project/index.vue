@@ -4,7 +4,7 @@
     <div class="filter-container">
       <el-row :gutter="4">
         <el-col :lg="4" :xs="24" :sm="8" :md="6">
-          <el-input v-model="query.name" placeholder="项目姓名"  class="filter-item" @keyup.enter.native="handleFilter" />
+          <el-input v-model="query.name" placeholder="项目名称"  class="filter-item" @keyup.enter.native="handleFilter" />
         </el-col>
         
         <el-col :lg="8" :xs="24" :sm="24" :md="12">
@@ -42,7 +42,7 @@
         label="创建时间"
         width="160" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.create_time | displayTimer('{y}-{m}-{d}') }}</span>
+          <span>{{ scope.row.create_time | parseTime('{y}年{m}月{d}日') }}</span>
         </template>
       </el-table-column>
 
@@ -52,7 +52,7 @@
         width="160" 
         align="center"> 
         <template slot-scope="{row}">
-          <span>{{ row.end_time | displayTimer }}</span>
+          <span>{{ row.end_time | timeFormatter('{y}年{m}月{d}日') }}</span>
         </template>
       </el-table-column>
 
@@ -176,14 +176,15 @@ export default {
        return '未指派职位' 
       }
     },
-    displayTimer(time, format){
-      if(time > 0)
-        return parseTime(time, '{y}-{m}-{d}')
-      else
-        return '暂未设定时间'
-    },
     imgFilter(img){
-      return process.env.VUE_APP_BASE_API + '/' + img
+      return process.env.VUE_IMAGE_BASE_API + '/' + img
+    },
+    timeFormatter(time, cFormat) {
+      if(time > 0){
+        return parseTime(time, cFormat)
+      }else{
+        return '未设置预期时间';
+      }
     }
   },
   data() {
@@ -249,17 +250,19 @@ export default {
 
     saveProject(){
       this.$refs.form.validate((valid) => {
-          if (valid) {
-            this.submitLoading = true;
-            createProject(this.project).then(response=>{
-              this.submitLoading = false;
-              this.showDrawer = false;
-              this.getList();
-            });
-          } else {
-            return false;
-          }
-        });
+        if (valid) {
+          this.submitLoading = true;
+          createProject(this.project).then(response=>{
+            this.submitLoading = false;
+            this.showDrawer = false;
+            this.getList();
+          }).catch(error=>{
+            this.submitLoading = false;
+          });
+        } else {
+          return false;
+        }
+      });
     },
     close(){
       this.showDrawer = false;
@@ -279,7 +282,7 @@ export default {
       return isJPG && isLt2M;
     },
     handleProjectImageSuccess(res, file) {
-      this.project.image =  process.env.VUE_APP_BASE_API+ '/' +res.data;
+      this.project.image =  process.env.VUE_IMAGE_BASE_API+ '/' +res.data;
       this.project.img_preview = URL.createObjectURL(file.raw);
     },
     fetchUser(){

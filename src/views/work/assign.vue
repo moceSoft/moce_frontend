@@ -9,7 +9,7 @@
         </div>
         <div style="margin-bottom:20px">
          
-          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8">
+          <el-col :xs="24" :sm="24" :md="{span: 18, offset:6}" :lg="{span: 12, offset:6}" :xl="{span: 8, offset:6}">
             <el-form-item label="工作任务标题">
               <el-input v-model="form.title"></el-input>
             </el-form-item>
@@ -115,8 +115,7 @@
               </el-switch>
             </el-form-item>
           </el-col>
-          <el-col sppan="24">
-            <hr />
+          <el-col span="18" offset="6">
             <el-form-item>
               <el-button type="primary" @click="onSubmit">保存</el-button>
               <el-button>取消</el-button>

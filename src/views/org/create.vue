@@ -1,6 +1,5 @@
 <template>
-  <div class="app-container flex-center"
-      :loading="loading">
+  <div class="app-container flex-center">
     <OrgTree 
       :data="tree" 
       :zoom=true 
@@ -91,7 +90,6 @@ export default {
   data() {
     return {
       tree : {},
-      loading : true,
       showDrawer : false,
       item : {
         'id' : 0,
@@ -119,10 +117,7 @@ export default {
   methods: {
     fetchData() {
       getPositions().then(response => {
-        this.tree = (response.data[0])
-        this.loading = false
-      }).catch(error=>{
-        this.loading = false
+        this.tree = (response.data[0]);
       })
     },
     click(e, item){

@@ -8,9 +8,9 @@ export function login(data) {
   })
 }
 
-export function getInfo(token) {
+export function getInfo(id) {
   return request({
-    url: 'v1/user/info',
+    url: 'v1/user/info?id='+id,
     method: 'get',
   })
 }
@@ -41,4 +41,18 @@ export function createUser(data){
     method: 'post',
     data
   })
+}
+
+export function validate(data){
+  let url = 'v1/user/validate'
+  let params = []
+  Object.keys(data).map( key =>{
+    params.push( key + '=' + data[key])
+  })
+  url += "?"+params.join("&")
+  return request({
+    url: url,
+    method: 'get',
+  })
+
 }

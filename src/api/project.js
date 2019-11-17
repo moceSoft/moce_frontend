@@ -14,7 +14,7 @@ export function fetchList(query){
   Object.keys(query).map( key =>{
     params.push( key + '=' + query[key]);
   })
-  url += "?"+params.join("?");
+  url += "?"+params.join("&");
   return request({
     url: url,
     method: 'get'
