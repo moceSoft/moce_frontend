@@ -21,6 +21,7 @@ export function getInfo(id){
   })
 }
 
+
 export function createPosition(data) {
   return request({
     url: 'v1/position/create',

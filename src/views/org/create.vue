@@ -1,274 +1,182 @@
 <template>
   <div class="app-container flex-center">
-    <OrgTree 
-      :data="tree" 
-      :zoom=true 
-      :node-render="renderNode"
-      label-class-name=""
-    />
-    <Drawer :show="showDrawer" @close="close">
-      <div class="drawer_container">
-          <el-tabs :value="panel">
-            <el-tab-pane label="修改信息" name="update" v-show="item.id > 0">
-              <h3 class="drawer-title">修改 <b>{{item.name}}</b> 信息</h3>
-              <div class="drawer-item">
-                <el-input 
-                  v-model="item.name" 
-                  placeholder="请输入部门名称"
-                  name="update_item_label"
-                >
-                </el-input>
-                <input v-model="item.id" type="hidden">
-                <input v-model="item.parent_id" type="hidden">
-              </div>
-              <div class="drawer-item">
-                <el-input v-model="item.description" type="textarea" :rows="2" placeholder="请输入部门简介"></el-input>
-              </div>
-              <el-button @click="update" icon="el-icon-check">保存</el-button>
-              <!-- <el-button type="danger" @click="deleteItem" icon="el-icon-delete">删除</el-button> -->
-
-            </el-tab-pane>
-            <el-tab-pane label="新增下级部门" name="newChild">
-              
-              <h3 class="drawer-title">新增 <b>{{item.name}}</b> 下级部门</h3>
-              <div class="drawer-item">
-                <el-input 
-                  v-model="newItem.name" 
-                  name="create_item_label" 
-                  placeholder="请输入部门名称"
-                >
-                </el-input>
-                <input v-model="newItem.parent_id" type="hidden">
-              </div>
-              <div class="drawer-item">
-                <el-input v-model="newItem.description" type="textarea" :rows="2" placeholder="请输入部门简介"></el-input>
-              </div>
-              <el-button @click="create" icon="el-icon-check">保存</el-button>
-
-            </el-tab-pane>
-            <!-- <el-tab-pane label="职位管理" name="third">职位管理</el-tab-pane> -->
-          </el-tabs>
-      </div>
-    </Drawer>
-
-    <Drawer :show="showPositionDrawer" @close="togglePositionDrawer(false)">
-      <div class="drawer_container">
-          <h3 class="drawer-title">修改 <b>{{item.name}}</b> 信息</h3>
-          <div class="drawer-item">
-            <el-input 
-              v-model="item.name" 
-              placeholder="请输入部门名称"
-              name="update_item_label"
-            >
-            </el-input>
-            <input v-model="item.id" type="hidden">
-            <input v-model="item.parent_id" type="hidden">
+    <el-row style="width:100%">
+      <el-col :span="24">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>新建职位-{{this.departmentTitle}}</span>
           </div>
-          <div class="drawer-item">
-            <el-input v-model="item.description" type="textarea" :rows="2" placeholder="请输入部门简介"></el-input>
+          <el-form :model="position" ref="positionForm">
+            <el-form-item label="职位名称" 
+              props="name"
+              :rules="[
+                { required: true, message: '年龄不能为空', trigger: 'blur'},
+              ]">
+              <el-input v-model="position.name">
+              </el-input>
+            </el-form-item>
+          </el-form>
+          <el-form :inline="true">
+            <el-form-item label="职位权限">
+            </el-form-item>
+            <div v-loading="permissionLoading">
+              <div class="group_container">
+                <div class="group" v-for="(permissionGroup, i) in permissions" :key="i" :name="i + ''">
+                  <div class="group_title">
+                    {{permissionGroup.group}}
+                  </div>
+                  <div>
+                    <el-form-item :label="permission.label" v-for="(permission, j) in permissionGroup.actions" :key="j" style="margin:5px">
+                      <el-switch
+                        v-model="permission.value"
+                        :active-value="true"
+                        :inactive-value="false">
+                      </el-switch>
+                      <el-popover
+                        v-if="permission.scope"
+                        placement="bottom"
+                        trigger="click"
+                        >
+                        <div>
+                          <el-transfer v-loading="departmentLoading" :titles="['部门列表', '已授权部门']" :props="{key: 'id', label: 'name'}" :filterable="true" v-model="permission.departments" :data="departments"></el-transfer>
+                        </div>
+                        <el-button size="mini" slot="reference" style="margin-left: 10px">设置权限范围</el-button>
+                      </el-popover >
+                    </el-form-item>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </el-form>
+
+          <div>
+            <el-button type="primary" @click="onSubmit">立即创建</el-button>
+            <el-button>取消</el-button>
           </div>
-          <el-button @click="update" icon="el-icon-check">保存</el-button>
-      </div>
-    </Drawer>
+
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
-import OrgTree from 'v-org-tree'
-import 'v-org-tree/dist/v-org-tree.css'
-import { getPositions, createOrg, updateOrg, deleteOrg } from '@/api/org'
-import Drawer from '@/components/Drawer'
+import { getList as getDepartment } from '@/api/org';
 import { Message } from 'element-ui'
-import orgNode from './orgNode'
+import { getPermission } from '@/api/permission';
 
 export default {
-  name: 'OrgTreeView',
+  name: 'NewPosition',
   components :{
-    OrgTree,
-    Drawer
+
   },
   data() {
     return {
-      tree : {},
-      showDrawer : false,
-      item : {
-        'id' : 0,
-        'name' : '',
-        'description' : '',
+      permissionLoading : true,
+      departmentLoading : true,
+      position:{
+        name : '',
+        department : 0,
       },
-      position :{
-          'id' : '',
-          'name' : '',
-          'department' : '',
-      },
-      newItem : {
-        'parent_id' : 0,
-        'name' : '',
-        'description' : '',
-      },
-      panel: 'update',
-      showPositionDrawer:false,
-      positionDrawerHeader: '',
+      activePanels :[],
+      permissions : [],
+      departments : [],
+      departmentTitle : '',
     }
   },
   created(){
-    this.fetchData();
+    const id = this.$route.params && this.$route.params.id
+    this.position.department = id;
+    this.fetchPermission(id)
+    this.fetchDepartment(id)
   },
   methods: {
-    fetchData() {
-      getPositions().then(response => {
-        this.tree = (response.data[0]);
+    initData(id){
+      if(!this.permissionLoading && !this.departmentLoading){
+        let scope = []
+        this.departments.forEach(department=>{
+          if(department.id === id){
+            this.departmentTitle = department.name
+            this.setTagsViewTitle()
+            this.setPageTitle()
+          }
+        })
+
+        this.permissions.forEach((group, index)=> {
+          this.activePanels.push(index)
+          group.actions.forEach(permission => {
+            if(permission.scope){
+              permission.departments = [id]
+            }
+          })
+        })
+      }
+    },
+    fetchPermission(id){
+      getPermission({department : id}).then(response=>{
+        this.permissions = response.data
+        this.permissionLoading = false
+        this.$nextTick(() => {
+          this.initData(id)
+        })
+      }).catch(error=>{
+        this.permissionLoading = false
       })
     },
-    click(e, item){
-      this.item = item;
-      this.showDrawer = true;
-      this.newItem.parent_id = item.id;
+    fetchDepartment(id){
+      getDepartment().then(response=>{
+        this.departments = response.data
+        this.departmentLoading = false
+        this.$nextTick(() => {
+          this.initData(id)
+        })
+      }).catch(error=>{
+        this.departmentLoading = false
+      })
     },
-    close(){
-      this.showDrawer = false;
-    },
-    update(){
-      if(this.validate(this.item)){
-        updateOrg({...this.item}).then(response=>{
-          this.showDrawer = false;
-          this.tree = (response.data[0]);
-          Message({
-            message: '修改部门信息成功',
-            type: 'success',
-            duration: 4 * 1000
-          })
-        });
-      }
-    },
-    create(){
-      if(this.validate(this.newItem, true)){
-        createOrg({...this.newItem}).then(response=>{
-          this.tree = (response.data[0]);
-          this.showDrawer = false;
-          this.newItem = {
-            'parent_id' : 0,
-            'name' : '',
-            'description' : '',
-          }
-          Message({
-            message: '添加部门信息成功',
-            type: 'success',
-            duration: 4 * 1000
-          })
-        });
-      }
-    },
-    deleteItem(item){
-      this.$confirm('下级部门将会并入上级部门?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteOrg(item).then(response=>{
-          this.tree = (response.data[0]);
-            this.showDrawer = false;
-            Message({
-              message: '已成删除部门',
-              type: 'success',
-              duration: 4 * 1000
-            })
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });          
+    onSubmit(){
+      this.$refs['positionForm'].validate(valid => {
+        if(valid){
+          
+        }
       });
     },
-    validate(item, create = false){
-      if(!item.name){
-        Message({
-          message: '请填写部门名称',
-          type: 'error',
-          duration: 4 * 1000
-        })
-        if(create)
-          this.$ref.create_item_label.focus()
-        else
-          this.$ref.update_item_label.focus()
-        return false
-      }
-      if(create){
-        if(!item.parent_id){
-          Message({
-            message: '部门需设置上级部门',
-            type: 'error',
-            duration: 4 * 1000
-          })
-          return false;
-        }
-      }
-      return true;
+    setTagsViewTitle() {
+      const title = '新建职位'
+      const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.departmentTitle}` })
+      this.$store.dispatch('tagsView/updateVisitedView', route)
     },
-    renderNode(h, node){
-      let model = {
-        'id' : node.id,
-        'name' : node.name,
-        'positions' : node.positions
-      }
-      return (
-        <orgNode 
-          node={node} 
-          deleteNode={this.deleteItem}
-          newChildNode={this.newNode}
-          updateNode={this.updateNode}
-          newPosition = {this.newPosition}
-          updatePosition={this.updatePosition}
-        />
-      )
-    },
-    newNode(item){
-      this.item= Object.assign({}, item);
-      this.panel = 'newChild'
-      this.showDrawer = true;
-      this.newItem.parent_id = item.id;
-    },
-    updateNode(item){
-      this.item = Object.assign({}, item);
-      this.panel = 'update'
-      this.showDrawer = true;
-      this.newItem.parent_id = item.id;
-    },
-    togglePositionDrawer(show){
-      if(show){
-        this.showPositionDrawer = show;
-      }else
-        this.showPositionDrawer = !this.showPositionDrawer;
-    },
-    newPosition(item){
-      this.togglePositionDrawer(true)
-      this.positionDrawerHeader = '新增职位';
-      this.position = {
-        'id' : '',
-        'name' : '',
-        'department' : item.id
-      }
-    },
-    updatePosition(item){
 
-    }
+    setPageTitle() {
+      const title = '新建职位'
+      document.title = `${title} - ${this.departmentTitle}`
+    },
   }
 }
 </script>
-<style>
-.org-tree-node-label-inner{
-  padding:0;
-  border:none;
-  box-shadow: none;
+<style scoped>
+.group_container{
+  margin-bottom:20px;
 }
-.flex-center{
-  display: flex;
-  justify-content: space-around;
+.group_container>.group:last-child{
+  border-bottom:none;
 }
-.org-tree-node-label{
-  color:#666;
+.group{
+  padding-bottom:15px;
+  border-bottom:1px solid #E7E7E7;
+}
+.group{
+  padding-bottom:15px;
+  border-bottom:1px solid #E7E7E7;
+}
+.group_title{
+  padding-top:20px;
   font-size:14px;
+  color:#999;
+  margin-bottom:15px;
+}
+.group_container>.group:first-child>.group_title{
+  padding-top:0;
 }
 
 </style>
