@@ -1,6 +1,6 @@
 <template>
   <div class="app-container flex-center"
-      :loading="loading">
+      v-loading="loading">
     <OrgTree 
       :data="tree" 
       :zoom=true 
@@ -262,6 +262,9 @@ export default {
 }
 </script>
 <style>
+.org-tree-container{
+  overflow: auto;
+}
 .org-tree-node-label-inner{
   padding:0;
   border:none;

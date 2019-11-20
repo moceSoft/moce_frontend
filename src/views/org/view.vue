@@ -1,19 +1,25 @@
 <template>
   <div class="app-container flex-center" v-loading="loading">
     <el-row style="width:100%">
-      <el-col :span="24" style="display: flex;flex-direction: row;align-items:flex-end;margin-bottom:20px">
+      <el-col :span="24" style="display: flex;flex-direction: row;align-items:flex-end;margin-bottom:20px;flex-wrap: wrap">
         <h1>{{position.name}}</h1>
+
+        <router-link to="/org/index" >
+          <el-button type="info" size="mini" plain icon="el-icon-back" style="margin-left:10px">
+            返回
+          </el-button>
+        </router-link>
         <div style="margin-left:30px">
-          <el-button size="mini">
-            修改职位
-          </el-button>
-          <el-button type="primary" size="mini" plain>
-            修改权限
-          </el-button>
-          <el-button type="danger" size="mini" plain>
+          <router-link :to="'/org/update/'+ id" >
+            <el-button size="mini">
+              更新职位/权限
+            </el-button>
+          </router-link>
+          <el-button type="danger" size="mini" plain style="margin-left:5px" @click="deletePosition">
             删除职位
           </el-button>
         </div>
+
       </el-col>
     </el-row>
     <el-row :gutter="20" style="width:100%">
@@ -33,7 +39,7 @@
               <div>
                 员工信息写在这里
               </div>
-              <avatar size="60" :user="item" />
+              <Avatar size="60" :user="item" />
             </el-popover>
             <div v-if="!users.length" style="text-align:center;padding: 20px 0 0 0;color:#A7A7A7">
               暂无员工就任该职位
@@ -47,16 +53,16 @@
             <span>职位权限设置</span>
           </div>
           <el-form :inline="true">
-            <div style="margin-bottom:20px"  v-loading="permissionLoading">
-              <el-collapse >
-                <el-collapse-item  v-for="(permissionGroup, i) in permissions" :key="i">
-                  <template slot="title">
+            <div class="group_container" style="margin-bottom:20px"  v-loading="permissionLoading">
+                <div class="group"  v-for="(permissionGroup, i) in permissions" :key="i">
+                  <div class="group_title">
                     {{permissionGroup.group}}
-                  </template>
+                  </div>
                   <div>
                     <el-form-item :label="permission.label" v-for="(permission, j) in permissionGroup.actions" :key="j" style="margin:5px">
                       <el-switch
                         v-model="permission.value"
+                        :disabled="true"
                         :active-value="true"
                         :inactive-value="false">
                       </el-switch>
@@ -66,14 +72,18 @@
                         trigger="click"
                         >
                         <div>
-                          <el-transfer :titles="['部门列表', '已授权部门']" :props="{key: 'id', label: 'name'}" :filterable="true" v-model="permission.departments" :data="departments"></el-transfer>
+                          <div class="scope_title">
+                            <span>已授权部门</span>
+                          </div>
+                          <div v-for="department, j in permission.departments" :key="j" class="scope_department">
+                            <i class="el-icon-check"></i>  {{departments[department+'']}}
+                          </div>
                         </div>
-                        <el-button size="mini" slot="reference" style="margin-left: 10px">设置权限范围</el-button>
+                        <el-button size="mini" slot="reference" style="margin-left: 10px">权限范围</el-button>
                       </el-popover>
                     </el-form-item>
                   </div>
-                </el-collapse-item>
-              </el-collapse>
+                </div>
             </div>
           </el-form>
         </el-card>
@@ -84,18 +94,19 @@
 
 <script>
 import { getList as getDepartment } from '@/api/org';
-import { getInfo } from '@/api/position';
+import { getInfo, deletePosition } from '@/api/position';
 import { getPermission } from '@/api/permission';
 import { fetchList as getUser } from '@/api/user';
-import { avatar } from '@/components/Avatar';
+import { Avatar } from '@/components/Avatar';
 
 export default {
   name: 'positionView',
   components :{
-    avatar
+    Avatar
   },
   data() {
     return {
+      id : '',
       loading : true,
       userLoading: true,
       permissionLoading : true,
@@ -105,14 +116,13 @@ export default {
       },
       users:[],
       permissions : [],
-      departments : [
-
-      ]
+      departments : {}
     }
   },
   created(){
     // this.fetchData();
     const id = this.$route.params && this.$route.params.id
+    this.id = id
     this.fetchData(id)
     this.fetchUser(id)
     this.fetchPermission(id)
@@ -138,7 +148,8 @@ export default {
       })
     },
     fetchPermission(id){
-      getPermission({department : id}).then(response=>{
+      getPermission({position : id}).then(response=>{
+        console.log(response);
         this.permissions = response.data
         this.permissionLoading = false;
       }).catch(error=>{
@@ -147,9 +158,14 @@ export default {
     },
     fetchDepartment(){
       getDepartment().then(response=>{
-        this.departments = response.data
+        response.data.forEach((department)=>{
+          this.departments[department.id] = department.name
+        })
       }).catch(error=>{
-
+        this.$message({
+          type: 'warning',
+          message: '组织部门数据读取失败！'
+        }); 
       })
     },
 
@@ -163,6 +179,20 @@ export default {
       const title = '查看员工信息'
       document.title = `${title} - ${this.position.name}`
     },
+    deletePosition(){
+      this.$confirm("就任该职位的员工将自动变更为未指派职位", "确认删除"+this.position.name+"吗？", {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        
+      }).catch(() => {
+        this.$message({
+          type: 'primary',
+          message: '已取消删除'
+        });          
+      });
+    }
   }
 }
 </script>
@@ -174,5 +204,37 @@ export default {
     font-weight:300 !important;
     margin:0;
     color:#777;
+  }
+  .scope_title{
+    color:#777;
+    padding-bottom:5px;
+    border-bottom:1px solid #E7E7E7;
+    margin-bottom:5px;
+  }
+  .scope_department{
+    line-height: 28px;
+  }
+  .group_container{
+    margin-bottom:20px;
+  }
+  .group_container>.group:last-child{
+    border-bottom:none;
+  }
+  .group{
+    padding-bottom:15px;
+    border-bottom:1px solid #E7E7E7;
+  }
+  .group{
+    padding-bottom:15px;
+    border-bottom:1px solid #E7E7E7;
+  }
+  .group_title{
+    padding-top:20px;
+    font-size:14px;
+    color:#999;
+    margin-bottom:15px;
+  }
+  .group_container>.group:first-child>.group_title{
+    padding-top:0;
   }
 </style>

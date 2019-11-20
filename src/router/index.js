@@ -145,6 +145,13 @@ export const constantRoutes = [
         name: '查看职位',
         meta: { title: '查看职位'},
         hidden: true
+      },
+      {
+        path: 'update/:id',
+        component: () => import('@/views/org/update'),
+        name: '更新职位',
+        meta: { title: '更新职位'},
+        hidden: true
       }
     ]
   },

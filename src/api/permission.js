@@ -12,3 +12,18 @@ export function getPermission(query){
     method: 'get',
   })
 }
+
+export function getInfo(id){
+  let url = 'v1/permission/'+ id;
+  return request({
+    url: url,
+    method: 'get',
+  })
+}
+
+export function getDefaultPermission(){
+  return request({
+    url: 'v1/permission',
+    method: 'get',
+  })
+}

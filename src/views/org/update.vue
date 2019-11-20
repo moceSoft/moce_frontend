@@ -4,7 +4,7 @@
       <el-col :span="24">
         <el-card class="box-card" v-loading="submitLoading">
           <div slot="header" class="clearfix">
-            <span>新建职位-{{departmentTitle}}</span>
+            <span>更新职位 - {{orginalName}} - {{departmentTitle}}</span>
           </div>
           <el-form :model="position" ref="positionForm" :rules="rules" >
             <el-form-item label="职位名称" prop="name">
@@ -46,7 +46,7 @@
           </el-form>
 
           <div>
-            <el-button type="primary" @click="onSubmit">立即创建</el-button>
+            <el-button type="primary" @click="onSubmit">更新职位</el-button>
             <el-button>取消</el-button>
           </div>
 
@@ -58,9 +58,9 @@
 
 <script>
 import { getList as getDepartment } from '@/api/org'
-import { Message } from 'element-ui'
-import { getDefaultPermission } from '@/api/permission'
-import { createPosition } from '@/api/position'
+import { getInfo } from '@/api/position'
+import { getInfo as getPermission } from '@/api/permission'
+import { updatePosition } from '@/api/position'
 
 export default {
   name: 'NewPosition',
@@ -73,6 +73,7 @@ export default {
       departmentLoading : true,
       submitLoading: false,
       position:{
+        id: '',
         name : '',
         department : 0,
       },
@@ -85,54 +86,40 @@ export default {
       permissions : [],
       departments : [],
       departmentTitle : '',
+      orginalName : '',
     }
   },
   created(){
     const id = this.$route.params && this.$route.params.id
-    this.position.department = id;
+    // this.position.department = id;
+    this.fetchPosition(id)
     this.fetchPermission(id)
-    this.fetchDepartment(id)
+    this.fetchDepartment()
   },
   methods: {
-    initData(id){
-      if(!this.permissionLoading && !this.departmentLoading){
-        let scope = []
-        this.departments.forEach(department=>{
-          if(department.id === id){
-            this.departmentTitle = department.name
-            this.setTagsViewTitle()
-            this.setPageTitle()
-          }
-        })
+    fetchPosition(id){
+      getInfo(id).then(response=>{
+        this.position = response.data
+        this.departmentTitle = response.data.department.name
+        this.setTagsViewTitle()
+        this.setPageTitle()
+        this.orginalName = response.data.name
+      }).catch(error=>{
 
-        this.permissions.forEach((group, index)=> {
-          this.activePanels.push(index)
-          group.actions.forEach(permission => {
-            if(permission.scope){
-              permission.departments = [id]
-            }
-          })
-        })
-      }
+      })
     },
     fetchPermission(id){
-      getDefaultPermission().then(response=>{
+      getPermission(id).then(response=>{
         this.permissions = response.data
         this.permissionLoading = false
-        this.$nextTick(() => {
-          this.initData(id)
-        })
       }).catch(error=>{
         this.permissionLoading = false
       })
     },
-    fetchDepartment(id){
+    fetchDepartment(){
       getDepartment().then(response=>{
         this.departments = response.data
         this.departmentLoading = false
-        this.$nextTick(() => {
-          this.initData(id)
-        })
       }).catch(error=>{
         this.departmentLoading = false
       })
@@ -142,31 +129,34 @@ export default {
         if(valid){
           this.submitLoading = true
           let data = {...this.position, 'permission' : this.permissions}
-          console.log(data);
-          createPosition(data).then(response=>{
+          updatePosition(data).then(response=>{
             this.submitLoading = false
             this.$message({
               type: 'success',
-              message: '新建职位成功'
+              message: '更新职位成功'
             })
             this.$router.replace({
-              path: '/org/index'
+              path: '/org/view/' + this.position.id
             })
           }).catch(error=>{
             this.submitLoading = false
+            this.$message({
+              type: 'warning',
+              message: '更新职位失败'
+            })
           });
         }
       });
     },
     setTagsViewTitle() {
-      const title = '新建职位'
-      const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.departmentTitle}` })
+      const title = '更新职位'
+      const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.position.name}-${this.departmentTitle}` })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
 
     setPageTitle() {
-      const title = '新建职位'
-      document.title = `${title} - ${this.departmentTitle}`
+      const title = '更新职位'
+      document.title = `${title} - ${this.position.name} - ${this.departmentTitle}`
     },
   }
 }
