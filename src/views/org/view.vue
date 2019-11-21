@@ -28,18 +28,21 @@
           <div slot="header" class="clearfix">
             <span>该职位员工</span>
           </div>
-          <div style="margin-bottom:20px" v-loading="userLoading">
+          <div v-loading="userLoading">
             <el-popover
               :key="item.id"
               v-for="item in users"
               placement="top-start"
               :title="item.name"
-              trigger="hover"
+              trigger="click"
               >
               <div>
                 员工信息写在这里
               </div>
-              <Avatar size="60" :user="item" />
+              <el-button slot="reference" type="" size="mini" class="user_avatar_btn">
+                <img style="width: 60px; height: 60px" :src="item.sex === 1?avatar_female:avatar_male" />
+                <div class="user_avatar_text_btn">{{item.name}}</div>
+              </el-button>
             </el-popover>
             <div v-if="!users.length" style="text-align:center;padding: 20px 0 0 0;color:#A7A7A7">
               暂无员工就任该职位
@@ -97,12 +100,12 @@ import { getList as getDepartment } from '@/api/org';
 import { getInfo, deletePosition } from '@/api/position';
 import { getPermission } from '@/api/permission';
 import { fetchList as getUser } from '@/api/user';
-import { Avatar } from '@/components/Avatar';
+import avatar_female from '@/assets/images/avatar_female.png'
+import avatar_male from '@/assets/images/avatar_male.png'
 
 export default {
   name: 'positionView',
   components :{
-    Avatar
   },
   data() {
     return {
@@ -116,7 +119,9 @@ export default {
       },
       users:[],
       permissions : [],
-      departments : {}
+      departments : {},
+      avatar_female: avatar_female,
+      avatar_male: avatar_male
     }
   },
   created(){
@@ -140,8 +145,8 @@ export default {
       })
     },
     fetchUser(id){
-      getUser({department : id}).then(response=>{
-        this.users = response.data
+      getUser({position : id}).then(response=>{
+        this.users = response.data.list
         this.userLoading = false
       }).catch(error=>{
         this.userLoading = false;
@@ -174,7 +179,6 @@ export default {
       const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.position.name}` })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
-
     setPageTitle() {
       const title = '查看员工信息'
       document.title = `${title} - ${this.position.name}`
@@ -236,5 +240,12 @@ export default {
   }
   .group_container>.group:first-child>.group_title{
     padding-top:0;
+  }
+  .user_avatar_text_btn{
+    margin-top:4px;
+    padding:4px 6px;
+  }
+  .user_avatar_btn:hover{
+
   }
 </style>

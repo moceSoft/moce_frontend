@@ -116,12 +116,17 @@ export default {
       const _this = this
       window.tinymce.init({
         selector: `#${this.tinymceId}`,
-        language: this.languageTypeList['en'],
+        language: this.languageTypeList['zh'],
         height: this.height,
         body_class: 'panel-body ',
         object_resizing: false,
         toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
         menubar: this.menubar,
+        mobile: {
+          theme: 'mobile',
+          plugins: [ 'autosave', 'lists', 'autolink' ],
+          toolbar: [ 'undo', 'bold', 'italic', 'styleselect' ]
+        },
         plugins: plugins,
         end_container_on_empty_block: true,
         powerpaste_word_import: 'clean',
