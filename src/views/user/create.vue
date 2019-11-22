@@ -236,6 +236,7 @@ export default {
   },
   created(){
     this.fetchOrgs();
+    this.uploadConfig.headers.Authorization = 'Bearer ' + getToken()
   },
   methods:{
     fetchOrgs() {
@@ -260,7 +261,6 @@ export default {
         this.$message.error('上传图片大小不能超过 2MB!');
       }
 
-      this.uploadConfig.headers.Authorization = 'Bearer ' + getToken()
       return isJPG && isLt2M;
     },
     handleAvatarSuccess(res, file){

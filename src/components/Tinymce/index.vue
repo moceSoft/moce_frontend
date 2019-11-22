@@ -2,7 +2,7 @@
   <div :class="{fullscreen:fullscreen}" class="tinymce-container" :style="{width:containerWidth}">
     <textarea :id="tinymceId" class="tinymce-textarea" />
     <div class="editor-custom-btn-container">
-      <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK" />
+      <editorImage color="#1890ff" class="editor-upload-btn" :uploadUrl="uploadUrl" :headers="headers" @successCBK="imageSuccessCBK" />
     </div>
   </div>
 </template>
@@ -54,6 +54,12 @@ export default {
       type: [Number, String],
       required: false,
       default: 'auto'
+    },
+    uploadUrl : {
+      type : String
+    },
+    headers : {
+      type : Object,
     }
   },
   data() {

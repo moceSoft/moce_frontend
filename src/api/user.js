@@ -8,9 +8,15 @@ export function login(data) {
   })
 }
 
-export function getInfo(id) {
+export function getInfo(query) {
+  let url = 'v1/user/info'
+  let params = []
+  Object.keys(query).map( key =>{
+    params.push( key + '=' + query[key]);
+  })
+  url += "?"+params.join("&");
   return request({
-    url: 'v1/user/info?id='+id,
+    url: url,
     method: 'get',
   })
 }

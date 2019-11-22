@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
 
-    <el-form ref="form" :rules="ruleForm" :model="form" label-width="120px">
+    <el-form ref="workForm" :rules="rules" :model="form" label-width="120px">
       <el-row  justify="center">
         <el-card class="box-card">
         <div slot="header" class="clearfix">
@@ -9,14 +9,28 @@
         </div>
         <div style="margin-bottom:20px">
           <el-col :xs=24 :sm=24 :lg=12>
-            <el-form-item label="工作任务标题" props="title">
+            <el-form-item label="工作任务标题" prop="title">
               <el-input v-model="form.title"></el-input>
             </el-form-item>
-            <el-form-item label="工作任务描述"  props="description">
-              <tinymce v-model="form.description" :height="300" />
+            <el-form-item label="工作任务描述"  prop="description">
+              <tinymce v-model="form.description" :uploadUrl="uploadUrl" :headers="headers" :height="300" />
             </el-form-item>
 
-            <el-form-item label="所属项目"  props="project">
+            <el-form-item label="工作评级"  prop="rank">
+              <el-rate
+                v-model="form.rank"
+                show-text
+                style="margin-top:10px"
+                :texts="[
+                  '次要工作','普通工作','优先工作','重要工作','紧急工作'
+                ]"
+                
+                >
+              </el-rate>
+            </el-form-item>
+            
+
+            <el-form-item label="所属项目"  prop="project">
               <el-select v-model="form.project" filterable clearable placeholder="该工作属于哪一个项目" @change="projectChange" v-loading="projectLoading">
                 <el-option
                   v-for="item in projects"
@@ -27,7 +41,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="指派部门"  props="project">
+            <el-form-item label="指派部门"  prop="project">
               <el-select v-model="form.department" filterable placeholder="哪个部门处理该工作" @change="departmentChange"  v-loading="departmentLoading">
                 <el-option
                   v-for="item in departments"
@@ -38,7 +52,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="指派负责人"  props="project">
+            <el-form-item label="指派负责人"  prop="project">
               <el-select v-model="form.user" filterable :placeholder="form.department == ''?'请先指派部门':'请选择负责人'" :disabled="form.department==''" v-loading="userLoading">
                 <el-option
                   v-for="item in users"
@@ -49,7 +63,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="工作开始时间" props="create_time">
+            <el-form-item label="工作开始时间" prop="create_time">
               <el-date-picker
                 v-model="form.create_time"
                 align="right"
@@ -58,7 +72,7 @@
                 >
               </el-date-picker>
             </el-form-item>
-            <el-form-item label="工作截至时间" props="end_time">
+            <el-form-item label="工作截至时间" prop="end_time">
               <el-date-picker
                 v-model="form.end_time"
                 align="right"
@@ -67,14 +81,17 @@
                 >
               </el-date-picker>
             </el-form-item>
-            <el-form-item label="完成时审核" props="need_check">
+            <el-form-item label="完成时审核" prop="need_check">
               <el-switch
                 v-model="form.need_check"
                 active-color="#13ce66"
-                inactive-color="#D7D7D7">
+                inactive-color="#D7D7D7"
+                active-value="1"
+                inactive-value="0"
+                >
               </el-switch>
             </el-form-item>
-            <div v-show="form.need_check" props="check_department">
+            <div v-show="form.need_check" prop="check_department">
               <el-form-item label="审核部门">
                 <el-select v-model="form.check_department" filterable placeholder="请选择审核部门" @change="checkDepartmentChange" v-loading="departmentLoading">
                   <el-option
@@ -86,7 +103,7 @@
                 </el-select>
               </el-form-item>
 
-              <el-form-item label="指派审核人员" props="check_user">
+              <el-form-item label="指派审核人员" prop="check_user">
                 <el-select v-model="form.check_user" filterable :placeholder="form.check_department==''?'请先选择审核部门':'选择审核人员'" :disabled="form.check_department==''" v-loading="checkUserLoading">
                   <el-option
                     v-for="item in checkUsers"
@@ -108,11 +125,13 @@
               <el-switch
                 v-model="form.need_report"
                 active-color="#13ce66"
-                inactive-color="#D7D7D7">
+                inactive-color="#D7D7D7"
+                active-value="1"
+                inactive-value="0">
               </el-switch>
             </el-form-item>
           </el-col>
-          <el-col span="24">
+          <el-col :span=24>
             <el-form-item>
               <el-button type="primary" @click="onSubmit">保存</el-button>
               <el-button>取消</el-button>
@@ -130,7 +149,9 @@
 import { fetchList } from '@/api/user'
 import { getList } from '@/api/org'
 import { fetchList as fetchProject } from '@/api/project'
+import { createWork } from '@/api/work'
 import Tinymce from '@/components/Tinymce'
+import { getToken } from '@/utils/auth'
 
 export default {
   name: 'UserForm',
@@ -138,11 +159,28 @@ export default {
     Tinymce
   },
   data() {
+    var validateCheckDepartment = (rule, value, callback) => {
+      if(this.form.need_check){
+        if (value === '') {
+          callback(new Error('请选择审核部门'));
+        }
+      }
+      callback();
+    }
+
+    var validateCheckUser = (rule, value, callback) => {
+      if(this.form.need_check === true){
+        if (value === '') {
+          callback(new Error('请选择审核人员'));
+        }
+      }
+      callback();
+    }
     return {
       form : {
-        name : '',
+        title : '',
+        rank : 2,
         description : '',
-        finish_time: '',
         project : '',
         department : '',
         user : '',
@@ -161,14 +199,21 @@ export default {
       checkUsers: [],
       departments : [],
       projects : [],
-      ruleForm:{
-
-      }
+      rules:{
+        title : [{ required: true, message: '请输入工作名称', trigger: 'blur' },{ min: 3, message: '长度至少需要3个字符', trigger: 'blur' }],
+        check_department : [{ validator: validateCheckDepartment, trigger: 'blur' }],
+        check_user : [{ validator: validateCheckUser, trigger: 'blur' }],
+      },
+      uploadUrl : process.env.VUE_APP_BASE_API + 'v1/user/upload',
+      headers : {}
     }
   },
   created(){
     this.fetchProject()
     this.fetchDepartment()
+  },
+  mounted(){
+    this.headers.Authorization = 'Bearer ' + getToken()
   },
   methods:{
     fetchProject() {
@@ -216,7 +261,15 @@ export default {
       })
     },
     onSubmit(){
+      console.log('submit');
+      this.$refs['workForm'].validate(valid=>{
+        if(valid){
+          createWork(this.form).then(response=>{
+          })
+        }
+      }).catch(error=>{
 
+      })
     }
   }
 }
