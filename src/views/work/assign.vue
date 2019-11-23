@@ -28,7 +28,6 @@
                 >
               </el-rate>
             </el-form-item>
-            
 
             <el-form-item label="所属项目"  prop="project">
               <el-select v-model="form.project" filterable clearable placeholder="该工作属于哪一个项目" @change="projectChange" v-loading="projectLoading">
@@ -91,7 +90,7 @@
                 >
               </el-switch>
             </el-form-item>
-            <div v-show="form.need_check" prop="check_department">
+            <div v-show="form.need_check==1" prop="check_department">
               <el-form-item label="审核部门">
                 <el-select v-model="form.check_department" filterable placeholder="请选择审核部门" @change="checkDepartmentChange" v-loading="departmentLoading">
                   <el-option
@@ -112,12 +111,9 @@
                     :value="item.id">
                   </el-option>
                 </el-select>
-
-                  <el-tooltip class="item" effect="dark" content="不选择审核人，将发放审核通知至部门全体人员">
-                    <el-button type="primary" circle fab plain size="mini" style="margin-left:10px">
-                      <svg-icon icon-class="unknown" />
-                    </el-button>
-                  </el-tooltip>
+                <el-button plain size="mini" style="margin-left:10px;">
+                  指派给我
+                </el-button>
               </el-form-item>
             </div>
 
@@ -160,7 +156,7 @@ export default {
   },
   data() {
     var validateCheckDepartment = (rule, value, callback) => {
-      if(this.form.need_check){
+      if(this.form.need_check == 1){
         if (value === '') {
           callback(new Error('请选择审核部门'));
         }
@@ -169,7 +165,7 @@ export default {
     }
 
     var validateCheckUser = (rule, value, callback) => {
-      if(this.form.need_check === true){
+      if(this.form.need_check == 1){
         if (value === '') {
           callback(new Error('请选择审核人员'));
         }
@@ -186,7 +182,7 @@ export default {
         user : '',
         create_time: '',
         end_time: '',
-        need_check : false,
+        need_check : 0,
         check_department : '',
         check_user : '',
         need_report : false

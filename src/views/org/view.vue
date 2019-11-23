@@ -39,7 +39,7 @@
               <div>
                 员工信息写在这里
               </div>
-              <el-button slot="reference" type="" size="mini" class="user_avatar_btn">
+              <el-button slot="reference" plain size="mini" class="user_avatar_btn">
                 <img style="width: 60px; height: 60px" :src="item.sex === 1?avatar_female:avatar_male" />
                 <div class="user_avatar_text_btn">{{item.name}}</div>
               </el-button>
