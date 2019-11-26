@@ -26,7 +26,7 @@
       >
       <el-table-column prop="avatar" label="图片" width="80" align="center">
         <!-- 图片的显示 -->
-        <template   slot-scope="scope">            
+        <template slot-scope="scope">            
           <img :src="scope.row.avatar?scope.row.avatar:(scope.row.sex===1?avatar_female:avatar_male)"  width="60" height="60" />
         </template>         
       </el-table-column> 

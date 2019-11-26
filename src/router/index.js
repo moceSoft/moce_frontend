@@ -121,34 +121,55 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/org',
+    path: '/department',
     component: Layout,
     name: '组织架构',
     meta: { title: '组织架构', icon: 'tree' },
     children: [
       {
         path: 'index',
-        component: () => import('@/views/org/index'),
+        component: () => import('@/views/department/index'),
         name: '组织架构',
         meta: { title: '组织架构', }
       },
       {
-        path: 'new/:id',
-        component: () => import('@/views/org/create'),
+        path: 'create/:id',
+        component: () => import('@/views/department/create'),
+        name: '增加部门',
+        meta: { title: '增加部门'},
+        hidden: true
+      },
+      {
+        path: 'update/:id',
+        component: () => import('@/views/department/update'),
+        name: '修改部门',
+        meta: { title: '修改部门'},
+        hidden: true
+      }
+    ]
+  },
+  {
+    path: '/position',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'create/:id',
+        component: () => import('@/views/position/create'),
         name: '增加职位',
         meta: { title: '增加职位'},
         hidden: true
       },
       {
         path: 'view/:id',
-        component: () => import('@/views/org/view'),
+        component: () => import('@/views/position/view'),
         name: '查看职位',
         meta: { title: '查看职位'},
         hidden: true
       },
       {
         path: 'update/:id',
-        component: () => import('@/views/org/update'),
+        component: () => import('@/views/position/update'),
         name: '更新职位',
         meta: { title: '更新职位'},
         hidden: true
@@ -199,7 +220,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/org/index'),
+        component: () => import('@/views/department/index'),
         name: '发布通知',
         meta: { title: '发布通知', icon: 'message' }
       }
@@ -213,7 +234,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/org/index'),
+        component: () => import('@/views/department/index'),
         name: '高级应用',
         meta: { title: '高级应用', icon: 'component' }
       }
@@ -225,7 +246,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/org/index'),
+        component: () => import('@/views/department/index'),
         name: '系统设置',
         meta: { title: '系统设置', icon: 'edit' }
       }
@@ -237,7 +258,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/org/index'),
+        component: () => import('@/views/department/index'),
         name: '帮助',
         meta: { title: '帮助', icon: 'education' }
       }

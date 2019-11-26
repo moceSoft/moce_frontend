@@ -21,9 +21,9 @@ export function getInfo(id){
   })
 }
 
-export function getDefaultPermission(){
+export function getDefaultPermission(department){
   return request({
-    url: 'v1/permission',
+    url: 'v1/permission?department='+department,
     method: 'get',
   })
 }

@@ -1,35 +1,85 @@
 <template>
   <div class="app-container">
-    <el-tabs v-model="activeName">
-      <el-tab-pane label="use clipboard  directly" name="directly">
-        <el-input v-model="inputData" placeholder="Please input" style="width:400px;max-width:100%;" />
-        <el-button type="primary" icon="el-icon-document" @click="handleCopy(inputData,$event)">
-          copy
-        </el-button>
-      </el-tab-pane>
-      <el-tab-pane label="use clipboard by v-directive" name="v-directive">
-        <el-input v-model="inputData" placeholder="Please input" style="width:400px;max-width:100%;" />
-        <el-button v-clipboard:copy="inputData" v-clipboard:success="clipboardSuccess" type="primary" icon="el-icon-document">
-          copy
-        </el-button>
-      </el-tab-pane>
-    </el-tabs>
+    <el-table
+      :data="list"
+      style="width: 100%">
+      <el-table-column
+        prop="id"
+        label="#编号"
+        width="100">
+        <template slot-scope="{row}">
+          #{{row.id}}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="title"
+        label="工作主题"
+        width="180">
+      </el-table-column>
+
+      <el-table-column
+        prop="rate"
+        label="工作评级">
+        <template slot-scope="{row}">    
+          <el-rate
+            v-model="row.rate"
+            disabled
+            text-color="#ff9900"
+            score-template="{value}">
+          </el-rate>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        prop="status"
+        label="当前状态">
+        <template slot-scope="scope">
+          <workstatus :status="scope.row.status"> 
+        </template>
+      </el-table-column>
+
+      <el-table-column label="操作" align="center" width="240" class-name="small-padding fixed-width">
+        <template slot-scope="{row}">
+          <router-link :to="'/user/view/'+row.id">
+            <el-button   size="mini" >
+              查看
+            </el-button>
+          </router-link>
+          <router-link :to="'/user/update/'+row.id">
+            <el-button type="primary" plain size="mini">
+              编辑
+            </el-button>
+          </router-link>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
 <script>
-import clip from '@/utils/clipboard' // use clipboard directly
-import clipboard from '@/directive/clipboard/index.js' // use clipboard by v-directive
+import WorkStatus from './components/WorkStatus'
 
 export default {
-  name: 'ClipboardDemo',
-  directives: {
-    clipboard
+  name: 'WorkList',
+  components : {
+    workstatus : WorkStatus
   },
   data() {
     return {
-      activeName: 'directly',
-      inputData: 'https://github.com/PanJiaChen/vue-element-admin'
+      list:[
+        {
+          id: 1,
+          title : 'test',
+          parent : {
+
+          },
+          rank : 3,
+          need_check : 0,
+          need_report : 0,
+          end_time : 0,
+          status : 0
+        }
+      ]
     }
   },
   methods: {

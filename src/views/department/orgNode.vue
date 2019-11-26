@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="org_positions" v-if="node.id != 0" >
-        <router-link :to="'/org/view/'+item.id" 
+        <router-link :to="'/position/view/'+item.id" 
             :key="item.id"
             v-for="item in node.positions"
         >
@@ -18,7 +18,7 @@
           </el-button>
         </router-link>
         
-        <router-link :to="'/org/new/'+node.id">
+        <router-link :to="'/position/create/'+node.id">
           <el-button class="button-new-tag" size="mini">+ 添加职位</el-button>
         </router-link>
       </div>
