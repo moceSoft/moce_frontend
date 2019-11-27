@@ -78,7 +78,7 @@
         label="上次登录"
         width="180" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.last_login_time | timeFormatter('{y}年{m}月{d}日 {h}:{i}') }}</span>
+          <span>{{ scope.row.last_login_time | formatTime }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -97,7 +97,7 @@
               查看
             </el-button>
           </router-link>
-          <router-link :to="'/user/update/'+row.id">
+          <router-link :to="'/user/update/'+row.id" style="margin-left:5px">
             <el-button type="primary" plain size="mini">
               编辑
             </el-button>

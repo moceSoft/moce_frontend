@@ -1,5 +1,5 @@
 <template>
-  <el-avatar :size="size" :shape="shape" :src="img"></el-avatar>
+    <img :src="img" :width="size" :height="size" />
 </template>
 
 <script>
@@ -17,15 +17,14 @@ export default {
       type: String,
       default: 'square'
     },
-    user: {
-      type: Object,
-      default: function() {
-        return {
-          sex : 2,
-          avatar : '',
-        }
-      }
+    avatar:{
+      type: String,
+      default: ''
     },
+    sex:{
+      type: Number,
+      default: 2
+    }
   },
   data() {
     return {
@@ -33,7 +32,7 @@ export default {
   },
   computed : {
     img : function(){
-      return this.user.sex === 1?avatar_female:avatar_male
+      return this.avatar?this.avatar:(this.sex === 1?avatar_female:avatar_male)
     }
   },
   methods: {

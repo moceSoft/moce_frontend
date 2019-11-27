@@ -67,12 +67,17 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width"  width="240" >
         <template slot-scope="{row}">
-          <el-button plain size="mini" @click="view(row)">
-            查看
-          </el-button>
-          <el-button type="primary" plain size="mini" @click="view(row)">
-            编辑
-          </el-button>
+
+          <router-link :to="'/project/view/'+row.id">
+            <el-button plain size="mini" >
+              查看
+            </el-button>
+          </router-link>
+          <router-link :to="'/project/update/'+row.id" style="margin-left:5px">
+            <el-button type="primary" plain size="mini">
+              编辑
+            </el-button>
+          </router-link>
         </template>
       </el-table-column>
     </el-table>

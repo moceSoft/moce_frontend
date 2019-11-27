@@ -90,7 +90,6 @@ export const constantRoutes = [
     meta: {
       title: '工作事项',
       icon: 'list',
-      roles: ['admin', 'editor'] // you can set roles in root nav
     },
     children: [
       {
@@ -104,19 +103,38 @@ export const constantRoutes = [
         component: () => import('@/views/work/assign'),
         name: '指派工作',
         meta: { title: '指派工作' }
-      }
+      },
+      {
+        path: 'view/:id',
+        component: () => import('@/views/work/view'),
+        name: '查看工作',
+        meta: { title: '查看工作' },
+        hidden: true
+      },
     ]
   },
 
   {
     path: '/project',
     component: Layout,
+    meta: { 
+      title: '公司项目', 
+      icon: 'tab',
+      roles: ['admin', 'editor'] // you can set roles in root nav 
+    },
     children: [
       {
         path: 'index',
         component: () => import('@/views/project/index'),
-        name: '项目',
-        meta: { title: '公司项目', icon: 'tab', affix: true }
+        name: '项目列表',
+        meta: { title: '公司项目', icon: 'tab' }
+      },
+      {
+        path: 'view/:id',
+        component: () => import('@/views/project/view'),
+        name: '查看项目',
+        meta: { title: '查看项目' },
+        hidden: true
       },
     ]
   },
@@ -261,6 +279,19 @@ export const constantRoutes = [
         component: () => import('@/views/department/index'),
         name: '帮助',
         meta: { title: '帮助', icon: 'education' }
+      }
+    ]
+  },
+  {
+    path: '/profile',
+    component: Layout,
+    hidden : true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/profile/index'),
+        name: '个人资料',
+        meta: { title: '个人资料', icon: 'user', hidden: true }
       }
     ]
   }
