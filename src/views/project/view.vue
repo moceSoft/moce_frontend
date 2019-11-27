@@ -1,5 +1,5 @@
 <template>
-  <div class="project-container">
+  <div class="app-container">
     <PageHeader :goBack="goBack" :content="'查看项目'" />
     <el-row :gutter="20" style="margin-top:20px;">
       <el-col :sm="24" :md="8" :xl="4">
@@ -115,8 +115,16 @@
         </el-row>
 
         <el-card>
-          <div style="margin-bottom:15px">项目简介：</div>
-          <div style="text-align: justify;font-size:14px;color:#757575;line-height:24px">{{project.description}}</div>
+          <span>团队成员</span>
+          <div class="users_list">
+            <div class="user_item" v-for="user in users" :key="user.id+''">
+              <el-badge value="管" v-if="user.is_admin">
+                <Avatar :avatar="user.avatar" :sex="user.sex" :size="60" />
+              </el-badge>
+              <Avatar v-else :avatar="user.avatar" :sex="user.sex" :size="60" />
+              <div class="user_name">{{user.name}}</div>
+            </div>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -178,7 +186,28 @@ export default {
         end_time : 0,
         finish_time : 0,
 
-      }
+      },
+      users:[
+        {
+          id: 1,
+          name : 'admin',
+          avatar : '',
+          sex : 1,
+        },
+        {
+          id: 2,
+          name : 'admin',
+          avatar : '',
+          sex : 1,
+          is_admin : true,
+        },
+        {
+          id: 1,
+          name : 'admin',
+          avatar : '',
+          sex : 1,
+        },
+      ]
     }
   },
   created(){
@@ -240,6 +269,28 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  height: 30px;
+}
+
+.users_list{
+  display: flex;
+  /*justify-content: space-around;*/
+}
+
+.users_list>.user_item{
+  display: flex;
+  width:80px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding:10px;
+}
+
+.users_list>.user_item>.user_name{
+  text-align: center;
+  margin: 10px 0;
+  color:#656565;
+  font-size:13px;
 }
 </style>
 <style lang="scss" scoped>
