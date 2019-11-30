@@ -285,7 +285,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
   hr{
     margin:20px 0;
     border:none;

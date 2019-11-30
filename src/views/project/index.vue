@@ -12,9 +12,6 @@
             <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
               搜索
             </el-button>
-             <el-button v-waves class="filter-item" type="primary" icon="el-icon-plus" @click="showDrawer = true">
-              添加项目
-            </el-button>
           </el-button-group>
         </el-col>
       </el-row>
@@ -109,6 +106,15 @@
           </el-form-item>
           <el-form-item label="项目简介">
             <el-input v-model="project.description" type="textarea" :rows="2" placeholder="请输入项目简介"></el-input>
+          </el-form-item>
+          <el-form-item label="公开项目">
+            <el-switch
+              v-model="project.is_parivate"
+              active-color="#13ce66"
+              inactive-color="#E7E7E7"
+              active-value="false"
+              inactive-value="true">
+            </el-switch>
           </el-form-item>
           <el-form-item label="负责人"  prop="in_charge_user">
             <el-select v-model="project.in_charge_user" filterable placeholder="请选择负责人" @focus="fetchUser">
@@ -218,6 +224,7 @@ export default {
         description : '',
         in_charge_user : '',
         end_time : '',
+        is_parivate : false,
       },
       projectRules : {
         name :[
@@ -287,7 +294,7 @@ export default {
       return isJPG && isLt2M;
     },
     handleProjectImageSuccess(res, file) {
-      this.project.image =  process.env.VUE_IMAGE_BASE_API+ '/' +res.data;
+      this.project.image = process.env.VUE_IMAGE_BASE_API+ '/' +res.data;
       this.project.img_preview = URL.createObjectURL(file.raw);
     },
     fetchUser(){

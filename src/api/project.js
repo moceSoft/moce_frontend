@@ -1,9 +1,8 @@
 import request from '@/utils/request'
 
-
-export function getInfo(token) {
+export function getInfo(id) {
   return request({
-    url: 'v1/project/info',
+    url: 'v1/project/'+id,
     method: 'get',
   })
 }
@@ -31,8 +30,8 @@ export function createProject(data){
 
 export function updateProject(data){
   return request({
-    url: 'v1/project/update',
-    method: 'post',
+    url: 'v1/project',
+    method: 'update',
     data
   })
 }

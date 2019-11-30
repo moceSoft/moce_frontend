@@ -13,6 +13,14 @@
 
           <el-card style="margin-top:10px">
             <span>工作日志</span>
+            <el-timeline :reverse="true" style="margin-top:20px">
+              <el-timeline-item
+                v-for="(activity, index) in activities"
+                :key="index"
+                :timestamp="activity.timestamp">
+                {{activity.content}}
+              </el-timeline-item>
+            </el-timeline>
           </el-card>
         </el-col>
 
@@ -44,7 +52,17 @@ export default {
           id : 2,
           name : '测试项目2',
         }
-      ]
+      ],
+      activities: [{
+        content: '活动按期开始',
+        timestamp: '2018-04-15'
+      }, {
+        content: '通过审核',
+        timestamp: '2018-04-13'
+      }, {
+        content: '创建成功',
+        timestamp: '2018-04-11'
+      }]
     }
   },
   computed: {

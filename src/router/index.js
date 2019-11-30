@@ -128,7 +128,20 @@ export const constantRoutes = [
         path: '',
         component: () => import('@/views/project/index'),
         name: '项目列表',
-        meta: { title: '公司项目', icon: 'tab' }
+        meta: { title: '项目列表' }
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/project/create'),
+        name: '添加新项目',
+        meta: { title: '添加项目' }
+      },
+      {
+        path: 'update/:id',
+        component: () => import('@/views/project/update'),
+        name: '编辑项目',
+        meta: { title: '编辑项目' },
+        hidden: true,
       },
       {
         path: 'view/:id',
