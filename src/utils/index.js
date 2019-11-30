@@ -68,6 +68,11 @@ export function formatTime(time, option) {
     return Math.ceil(diff / 3600) + '小时前'
   } else if (diff < 3600 * 24 * 2) {
     return '1天前'
+  }else{
+    let n = Math.floor( diff / ( 3600 * 24 ) );
+    if( n < 30 ){
+      return n+'天前';
+    }
   }
   if (option) {
     return parseTime(time, option)

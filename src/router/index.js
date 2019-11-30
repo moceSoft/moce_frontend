@@ -117,6 +117,7 @@ export const constantRoutes = [
   {
     path: '/project',
     component: Layout,
+    redirect: '/project',
     meta: { 
       title: '公司项目', 
       icon: 'tab',
@@ -124,7 +125,7 @@ export const constantRoutes = [
     },
     children: [
       {
-        path: 'index',
+        path: '',
         component: () => import('@/views/project/index'),
         name: '项目列表',
         meta: { title: '公司项目', icon: 'tab' }
@@ -232,18 +233,18 @@ export const constantRoutes = [
       },
     ]
   },
-  {
-    path: '/notice',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/department/index'),
-        name: '发布通知',
-        meta: { title: '发布通知', icon: 'message' }
-      }
-    ]
-  },
+  // {
+  //   path: '/notice',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/department/index'),
+  //       name: '发布通知',
+  //       meta: { title: '发布通知', icon: 'message' }
+  //     }
+  //   ]
+  // },
 
 
   {

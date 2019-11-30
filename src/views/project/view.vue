@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import { fetchList, createProject } from '@/api/project'
+import { fetchList } from '@/api/project'
 import { fetchList as fetchUser } from '@/api/user'
 import { parseTime } from '@/utils'
 import { getToken } from '@/utils/auth'

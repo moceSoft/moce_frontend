@@ -1,28 +1,35 @@
 <template>
   <el-card style="margin-bottom:20px;">
     <div slot="header" class="clearfix">
-      <span>About me</span>
+      <span>基础信息</span>
     </div>
 
     <div class="user-profile">
       <div class="box-center">
-        <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
-          <div>Hello</div>
-          {{ user.role }}
-        </pan-thumb>
+        <avatar :avatar="user.avatar" :size="100" />
+        
       </div>
       <div class="box-center">
         <div class="user-name text-center">{{ user.name }}</div>
         <div class="user-role text-center text-muted">{{ user.role | uppercaseFirst }}</div>
+        <div class="user-role text-center text-muted" style="padding-top: 5px">测试部门</div>
       </div>
     </div>
 
     <div class="user-bio">
       <div class="user-education user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>Education</span></div>
+        <div class="user-bio-section-header"><svg-icon icon-class="tab" /><span>参与项目</span></div>
         <div class="user-bio-section-body">
-          <div class="text-muted">
-            JS in Computer Science from the University of Technology
+          <div class="projects">
+              <div v-for="project in projects" :key="project.id">
+                <router-link :to="'/project/view/'+project.id">
+                  <el-link>
+                    <img v-if="project.image" :src="project.image | imgFilter"  width="60" height="60" />
+                    <div v-else class="project_imageholder">{{project.name.substr(0, 1)}}</div>
+                    <div class="project_name">{{project.name}}</div>
+                  </el-link>
+                </router-link>
+              </div>
           </div>
         </div>
       </div>
@@ -54,9 +61,10 @@
 
 <script>
 import PanThumb from '@/components/PanThumb'
+import Avatar from '@/components/Avatar'
 
 export default {
-  components: { PanThumb },
+  components: { PanThumb, Avatar },
   props: {
     user: {
       type: Object,
@@ -65,14 +73,51 @@ export default {
           name: '',
           email: '',
           avatar: '',
-          roles: ''
+          roles: '',
+          sex: 1,
         }
       }
+    },
+    projects : {
+      type : Array,
+      default : () => {
+        return [
+
+        ]
+      }
     }
+  },
+  filters:{
+    imgFilter(img){
+      return process.env.VUE_IMAGE_BASE_API + '/' + img
+    },
   }
 }
 </script>
-
+<style scoped>
+.projects{
+  display: flex;
+  flex-direction: row;
+}
+.projects>div{
+  padding:10px;
+}
+.project_imageholder{
+  width:60px;
+  height:60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size:32px;
+  font-weight:600;
+  background-color:#a3d3ff;
+  border-radius: 5px;
+  color:#FFF;
+}
+.project_name{
+  margin:5px 0;
+}
+</style>
 <style lang="scss" scoped>
  .box-center {
    margin: 0 auto;
