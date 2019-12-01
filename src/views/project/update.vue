@@ -1,14 +1,14 @@
 <template>
-  <div class="app-container" v-loading="loading">
+  <div class="app-container">
 
-        <el-form ref="form" :model="project" :rules="projectRules" label-width="80px" label-position="right" v-loading="submitLoading">
+        <el-form ref="form" :model="project" :rules="projectRules" label-width="80px" label-position="right" v-loading="loading || submitLoading">
           <el-row  justify="center">
             <el-card class="box-card">
             <div slot="header" class="clearfix">
               <span>编辑项目</span>
             </div>
 
-              <el-col :xs="24" :sm="24" :md="12" :lg="8" >   
+            <el-col :xs="24" :sm="24" :md="12" :lg="8" >   
               <el-form-item label="项目图片">
                 <el-upload
                   class="project-image-uploader"
@@ -23,7 +23,7 @@
                       <label class="project-image-uploader-label" style="display:block;">项目图片</label>
                     </div>
                 </el-upload>
-                </el-form-item>
+              </el-form-item>
               <el-form-item label="项目名称" prop="name">
                 <el-input v-model="project.name" placeholder="请输入项目名称"></el-input>
               </el-form-item>
@@ -78,7 +78,6 @@
               </el-form-item>
             </el-col>
 
-          </el-col>
         </el-card>
       </el-row>
     </el-form>
@@ -135,6 +134,7 @@ export default {
       users : [],
       selectUserLoading : false,
       project:{
+        id : '',
         name : '',
         image : '',
         img_preview : '',
@@ -162,7 +162,7 @@ export default {
     getInfo(id){
       getInfo(id).then(response => {
         this.project = response.data
-        this.project.img_preview = process.env.VUE_IMAGE_BASE_API + response.data.image
+        this.project.img_preview = process.env.VUE_APP_IMAGE_BASE_URL + response.data.image
         this.project.end_time = response.data.end_time * 1000
         this.loading = false
       }).catch(error=>{
@@ -173,10 +173,14 @@ export default {
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.submitLoading = true;
-          updateProject(this.project).then(response=>{
+          let project = Object.assign({}, this.project);
+          project.end_time = project.end_time / 1000;
+          updateProject(project).then(response=>{
             this.submitLoading = false;
-            this.showDrawer = false;
-            this.getList();
+            this.$message({
+              message: '项目信息修改成功',
+              type: 'success'
+            });
           }).catch(error=>{
             this.submitLoading = false;
           });
@@ -203,7 +207,7 @@ export default {
       return isJPG && isLt2M;
     },
     handleProjectImageSuccess(res, file) {
-      this.project.image =  process.env.VUE_IMAGE_BASE_API+ '/' +res.data;
+      this.project.image =  process.env.VUE_APP_IMAGE_BASE_URL+ '/' +res.data;
       this.project.img_preview = URL.createObjectURL(file.raw);
     },
     fetchUser(){

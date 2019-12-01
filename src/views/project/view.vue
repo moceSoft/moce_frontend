@@ -1,9 +1,13 @@
 <template>
   <div class="app-container">
-    <PageHeader :goBack="goBack" :content="'查看项目'" />
-    <el-row :gutter="20" style="margin-top:20px;">
-      <el-col :sm="24" :md="8" :xl="4">
+    <el-row :gutter="20">
+      <el-col :sm="24" :md="8" :xl="6" >
+
+        <project-card :id="id" />
         <el-card>
+          <div slot="header" class="clearfix">
+            <span>项目信息</span>
+          </div>
           <div class="project_info">
             <div class="project_image">
               <img v-if="project.image" :src="project.image | imgFilter"  />
@@ -52,90 +56,99 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :sm="24" :md="16" :xl="20">
-
-        <el-row :gutter="10" class="panel-group">
-          <el-col :xs="12" :sm="12" :lg="6" >
-            <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-              <div class="card-panel-icon-wrapper icon-people">
-                <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-              </div>
-              <div class="card-panel-description">
-                <div class="card-panel-text">
-                  待完成数量
-                </div>
-                <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-              </div>
-            </div>
-          </el-col>
-
-          <el-col :xs="12" :sm="12" :lg="6" >
-            <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-              <div class="card-panel-icon-wrapper icon-people">
-                <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-              </div>
-              <div class="card-panel-description">
-                <div class="card-panel-text">
-                  已完成数量
-                </div>
-                <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-              </div>
-            </div>
-          </el-col>
-
-
-          <el-col :xs="12" :sm="12" :lg="6" >
-            <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-              <div class="card-panel-icon-wrapper icon-people">
-                <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-              </div>
-              <div class="card-panel-description">
-                <div class="card-panel-text">
-                  总任务数量
-                </div>
-                <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-              </div>
-            </div>
-          </el-col>
-
-          <el-col :xs="12" :sm="12" :lg="6" >
-            <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-              <div class="card-panel-icon-wrapper icon-people">
-                <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-              </div>
-              <div class="card-panel-description">
-                <div class="card-panel-text">
-                  参与人员
-                </div>
-                <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-              </div>
-            </div>
-          </el-col>
-
-        </el-row>
-
+      <el-col :sm="24" :md="16" :xl="18">
         <el-card>
-          <span>团队成员</span>
-          <div class="users_list">
-            <div class="user_item" v-for="user in users" :key="user.id+''">
-              <el-badge value="管" v-if="user.is_admin">
-                <Avatar :avatar="user.avatar" :sex="user.sex" :size="60" />
-              </el-badge>
-              <Avatar v-else :avatar="user.avatar" :sex="user.sex" :size="60" />
-              <div class="user_name">{{user.name}}</div>
-            </div>
-          </div>
+          <el-tabs v-model="activeTab">
+            <el-tab-pane label="工作事项" name="events">
+              <el-row :gutter="10" class="panel-group">
+              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
+                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+                  <div class="card-panel-icon-wrapper icon-people">
+                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+                  </div>
+                  <div class="card-panel-description">
+                    <div class="card-panel-text">
+                      待完成数量
+                    </div>
+                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+                  </div>
+                </div>
+              </el-col>
+
+              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
+                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+                  <div class="card-panel-icon-wrapper icon-people">
+                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+                  </div>
+                  <div class="card-panel-description">
+                    <div class="card-panel-text">
+                      已完成数量
+                    </div>
+                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+                  </div>
+                </div>
+              </el-col>
+
+
+              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
+                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+                  <div class="card-panel-icon-wrapper icon-people">
+                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+                  </div>
+                  <div class="card-panel-description">
+                    <div class="card-panel-text">
+                      总任务数量
+                    </div>
+                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+                  </div>
+                </div>
+              </el-col>
+
+              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
+                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+                  <div class="card-panel-icon-wrapper icon-people">
+                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+                  </div>
+                  <div class="card-panel-description">
+                    <div class="card-panel-text">
+                      参与人员
+                    </div>
+                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+                  </div>
+                </div>
+              </el-col>
+
+            </el-row>
+            </el-tab-pane>
+            <el-tab-pane label="项目成员" name="timeline">
+              <span>团队成员</span>
+              <div class="users_list">
+                <div class="user_item" v-for="user in users" :key="user.id+''">
+                  <el-badge value="管" v-if="user.is_admin">
+                    <Avatar :avatar="user.avatar" :sex="user.sex" :size="60" />
+                  </el-badge>
+                  <Avatar v-else :avatar="user.avatar" :sex="user.sex" :size="60" />
+                  <div class="user_name">{{user.name}}</div>
+                </div>
+              </div>
+            </el-tab-pane>
+            <el-tab-pane label="统计分析" name="account">
+            </el-tab-pane>
+          </el-tabs>
         </el-card>
+        
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-import { fetchList } from '@/api/project'
 import { fetchList as fetchUser } from '@/api/user'
 import { parseTime } from '@/utils'
 import { getToken } from '@/utils/auth'
+
+import ProjectCard from './components/ProjectCard'
+
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import Drawer from '@/components/Drawer'
@@ -150,7 +163,8 @@ export default {
     Drawer,
     PageHeader,
     Avatar,
-    CountTo
+    CountTo,
+    ProjectCard
   },
   directives: { waves },
   filters: {
@@ -162,11 +176,13 @@ export default {
       }
     },
     imgFilter(img){
-      return process.env.VUE_IMAGE_BASE_API + '/' + img
+      return process.env.VUE_APP_IMAGE_BASE_URL + '/' + img
     },
   },
   data() {
     return {
+      id : null,
+      activeTab : 'events',
       project :{
         name : '测试项目',
         image: '',
@@ -211,6 +227,7 @@ export default {
     }
   },
   created(){
+    this.id = this.$route.params && this.$route.params.id
   },
   methods:{
     goBack(){

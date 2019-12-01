@@ -30,8 +30,8 @@ export function createProject(data){
 
 export function updateProject(data){
   return request({
-    url: 'v1/project',
-    method: 'update',
+    url: 'v1/project/'+data.id,
+    method: 'put',
     data
   })
 }

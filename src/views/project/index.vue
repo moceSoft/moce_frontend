@@ -188,7 +188,7 @@ export default {
       }
     },
     imgFilter(img){
-      return process.env.VUE_IMAGE_BASE_API + '/' + img
+      return process.env.VUE_APP_IMAGE_BASE_URL + '/' + img
     },
     timeFormatter(time, cFormat) {
       if(time > 0){
