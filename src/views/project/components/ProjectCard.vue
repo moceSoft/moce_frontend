@@ -4,49 +4,72 @@
       <span>项目信息</span>
     </div>
 
-    <div class="user-profile ">
+    <div class="user-profile">
       <div class="box-center">
           <img v-if="project.image" :src="project.image | imgFilter" class="project_image" />
           <div v-else class="project_imageholder">{{project.name.substr(0, 1)}}</div>
       </div>
-      <div class="box-center">
+      <div class="box-center" style="margin-top:10px">
         <div class="user-name text-center">{{ project.name }}</div>
         <div class="user-role text-center text-muted">
-          <Avatar :avatar="project.in_charge_user_avatar" :sex="project.in_charge_user_sex" :size="30" />
-          <span style="margin-left:6px">{{project.in_charge_user_name}}</span>
+          {{project.end_time?'预期截止 ' + parseTime(project.end_time, '{y}年{m}月{d}日' ):'未设置预期时间'}}
         </div>
+      </div>
+      <div class="box-center" style="margin-top:18px">
+        <router-link :to="'/project/update/'+id" >
+          <el-button type="primary">
+            <i class="el-icon-edit"></i>
+            <div style="margin-top:8px;">
+              编辑
+            </div>
+          </el-button>
+        </router-link>
+        <el-button type="primary" plain style="margin-left:20px">
+          <svg-icon icon-class="lock" />
+          <div style="margin-top:8px;">
+            归档
+          </div>
+        </el-button>
       </div>
     </div>
 
     <div class="user-bio">
-      <div class="user-education user-bio-section">
+      <div class="user-bio-section">
         <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>项目简介</span></div>
         <div class="user-bio-section-body">
           <div class="text-muted">
-            {{project.description}}
+            {{project.description?project.description:'暂未添加简介'}}
           </div>
         </div>
       </div>
 
-      <div class="user-skills user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="skill" /><span>概况</span></div>
+      <div class="user-bio-section">
+        <div class="user-bio-section-header"><svg-icon icon-class="skill" /><span>其他信息</span></div>
         <div class="user-bio-section-body">
-          <div class="progress-item">
-            <span>Vue</span>
-            <el-progress :percentage="70" />
+
+          <div class="info_item">
+            <div style="line-height: 30px">负责人：</div>
+            <div class="avatar">
+              <Avatar :avatar="project.in_charge_user.avatar" :sex="project.in_charge_user.sex" :size="30" />
+              <span style="margin-left:6px">{{project.in_charge_user.name}}</span>
+            </div>
           </div>
-          <div class="progress-item">
-            <span>JavaScript</span>
-            <el-progress :percentage="18" />
+
+          <div class="info_item">
+            <div style="line-height: 30px">创建人：</div>
+            <div class="avatar">
+              <Avatar :avatar="project.create_user.avatar" :sex="project.create_user.sex" :size="30" />
+              <span style="margin-left:6px">{{project.create_user.name}}</span>
+            </div>
           </div>
-          <div class="progress-item">
-            <span>Css</span>
-            <el-progress :percentage="12" />
+
+          <div class="info_item">
+            <div style="line-height: 30px">创建时间：</div>
+            <div class="avatar">
+                {{ project.create_time | parseTime('{y}年{m}月{d}日') }}
+            </div>
           </div>
-          <div class="progress-item">
-            <span>ESLint</span>
-            <el-progress :percentage="100" status="success" />
-          </div>
+
         </div>
       </div>
     </div>
@@ -59,6 +82,9 @@ import Avatar from '@/components/Avatar'
 import { parseTime } from '@/utils'
 
 export default {
+  components:{
+    Avatar
+  },
   props: {
     id: {
       type: Number,
@@ -81,23 +107,16 @@ export default {
       loading : true,
       project:{
         id : '',
-        name : '测试项目',
+        name : '',
         image: '',
-        description : '映射出特定期间已创建和已解决问题的对比情况，这可以帮助你了解整体待办事项处于增长状态还是减少状态。',
-        in_charge_user_name : 'admin',
-        in_charge_user: 1,
-        in_charge_user_avatar : '',
-        in_charge_user_sex : 1,
+        description : '',
+        in_charge_user: {},
+        create_user: {},
+        create_time : '',
 
-        create_user:1,
-        create_user_name:'admin',
-        create_user_avatar: '',
-        create_user_sex : 1,
-        create_time : 1573672273,
-
-        stats : 1,
-        end_time : 0,
-        finish_time : 0,
+        stats : '',
+        end_time : '',
+        finish_time : '',
       },
     }
   },
@@ -106,15 +125,19 @@ export default {
   },
   methods :{
     getInfo(id){
-      getInfo(id).then(response => {
+      getInfo(id, true).then(response => {
         this.project = response.data
         this.project.img_preview = process.env.VUE_APP_IMAGE_BASE_URL + response.data.image
-        this.project.end_time = response.data.end_time * 1000
+        this.project.end_time = parseInt(response.data.end_time)
+        // console.log(typeof this.project.end_time)
         this.loading = false
       }).catch(error=>{
         console.error(error)
       })
     },
+    parseTime(time, format){
+      return parseTime(time, format);
+    }
   }
 }
 </script>
@@ -125,6 +148,7 @@ export default {
   justify-content: center;
   align-items: center;
   margin-bottom:40px;
+  border-radius: 8px;
 }
 .project_imageholder{
   width:140px;
@@ -135,8 +159,34 @@ export default {
   font-size:68px;
   font-weight:600;
   background-color:#a3d3ff;
-  border-radius: 5px;
+  border-radius: 8px;
   color:#FFF;
+}
+.info_item{
+  display: flex;
+  font-size:14px;
+  color:#777;
+  margin-top:10px;
+}
+.info_item>div{
+  line-height:21px;
+}
+.info_item>div:first-child{
+  width:80px;
+  flex-grow:0;
+  flex-shrink:0;
+  text-align: right;
+}
+.info_item>div:last-child{
+  flex-grow:1;
+  text-align: right;
+  color:#888;
+}
+.avatar{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 30px;
 }
 </style>
 <style lang="scss" scoped>

@@ -47,14 +47,14 @@
         prop="department"
         label="所属部门">
         <template slot-scope="scope">
-          <span>{{ scope.row.department | getDepartment }}</span>
+          <span>{{ scope.row.department_name | getDepartment }}</span>
         </template>
       </el-table-column>
       <el-table-column
         prop="position"
         label="职位">
         <template slot-scope="scope">
-          <span>{{ scope.row.position | getPosition }}</span>
+          <span>{{ scope.row.position_name | getPosition }}</span>
         </template>
       </el-table-column>
 
@@ -138,14 +138,10 @@ export default {
       return statusTextMap[status]
     },
     getDepartment(department){
-      if(department == 0){
-       return '未指派部门' 
-      }
+      return department?department:'未指派部门'
     },
     getPosition(position){
-      if(position == 0){
-       return '未指派职位' 
-      }
+      return position?position:'未指派职位' 
     },
     getGender(sex){
       const gendaerMap = {
@@ -169,6 +165,7 @@ export default {
       query: {
         name : '',
         phone : '',
+        department : '',
         page: 1,
         limit: 30,
       },

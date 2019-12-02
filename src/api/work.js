@@ -13,6 +13,7 @@ export function getWork(query){
   })
 }
 
+
 export function getInfo(id){
   let url = 'v1/work/'+ id;
   return request({

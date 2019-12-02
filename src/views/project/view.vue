@@ -2,135 +2,16 @@
   <div class="app-container">
     <el-row :gutter="20">
       <el-col :sm="24" :md="8" :xl="6" >
-
         <project-card :id="id" />
-        <el-card>
-          <div slot="header" class="clearfix">
-            <span>项目信息</span>
-          </div>
-          <div class="project_info">
-            <div class="project_image">
-              <img v-if="project.image" :src="project.image | imgFilter"  />
-              <div v-else class="project_imageholder">{{project.name.substr(0, 1)}}</div>
-            </div>
-
-            <div class="info_item">
-              <div>项目名称：</div>
-              <div>{{project.name}}</div>
-            </div>
-
-            <div class="info_item">
-              <div style="line-height: 30px">负责人：</div>
-              <div class="avatar">
-                <Avatar :avatar="project.in_charge_user_avatar" :sex="project.in_charge_user_sex" :size="30" />
-                <span style="margin-left:6px">{{project.in_charge_user_name}}</span>
-              </div>
-            </div>
-
-            <div class="info_item" style="flex-wrap: wrap;">
-              <div>项目简介：</div>
-              <div style="text-align: justify;width:100%;padding-top:5px">{{project.description}}</div>
-            </div>
-
-            <div class="info_item">
-              <div>截止时间：</div>
-              <div>{{project.end_time | timeFilter('{y}年{m}月{d}日') }}</div>
-            </div>
-
-            <hr style="background-color:#E3E3E3;height: 1px;border: none;margin: 10px 0" />
-
-            <div class="info_item">
-              <div style="line-height: 30px">创建人：</div>
-              <div class="avatar">
-                <Avatar :avatar="project.create_user_avatar" :sex="project.create_user_sex" :size="30" />
-                <span style="margin-left:6px">{{project.create_user_name}}</span>
-              </div>
-            </div>
-            <div class="info_item">
-              <div >创建时间：</div>
-              <div>
-                {{ project.create_time | parseTime('{y}年{m}月{d}日') }}
-              </div>
-            </div>
-
-          </div>
-        </el-card>
       </el-col>
       <el-col :sm="24" :md="16" :xl="18">
         <el-card>
           <el-tabs v-model="activeTab">
             <el-tab-pane label="工作事项" name="events">
-              <el-row :gutter="10" class="panel-group">
-              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
-                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-                  <div class="card-panel-icon-wrapper icon-people">
-                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-                  </div>
-                  <div class="card-panel-description">
-                    <div class="card-panel-text">
-                      待完成数量
-                    </div>
-                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-                  </div>
-                </div>
-              </el-col>
-
-              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
-                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-                  <div class="card-panel-icon-wrapper icon-people">
-                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-                  </div>
-                  <div class="card-panel-description">
-                    <div class="card-panel-text">
-                      已完成数量
-                    </div>
-                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-                  </div>
-                </div>
-              </el-col>
-
-
-              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
-                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-                  <div class="card-panel-icon-wrapper icon-people">
-                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-                  </div>
-                  <div class="card-panel-description">
-                    <div class="card-panel-text">
-                      总任务数量
-                    </div>
-                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-                  </div>
-                </div>
-              </el-col>
-
-              <el-col :xs="12" :sm="12" :lg="6" style="margin-top:10px;">
-                <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-                  <div class="card-panel-icon-wrapper icon-people">
-                    <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-                  </div>
-                  <div class="card-panel-description">
-                    <div class="card-panel-text">
-                      参与人员
-                    </div>
-                    <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-                  </div>
-                </div>
-              </el-col>
-
-            </el-row>
+              <project-works :id='id'/>
             </el-tab-pane>
             <el-tab-pane label="项目成员" name="timeline">
-              <span>团队成员</span>
-              <div class="users_list">
-                <div class="user_item" v-for="user in users" :key="user.id+''">
-                  <el-badge value="管" v-if="user.is_admin">
-                    <Avatar :avatar="user.avatar" :sex="user.sex" :size="60" />
-                  </el-badge>
-                  <Avatar v-else :avatar="user.avatar" :sex="user.sex" :size="60" />
-                  <div class="user_name">{{user.name}}</div>
-                </div>
-              </div>
+              <project-users  :id='id'/>
             </el-tab-pane>
             <el-tab-pane label="统计分析" name="account">
             </el-tab-pane>
@@ -148,23 +29,19 @@ import { parseTime } from '@/utils'
 import { getToken } from '@/utils/auth'
 
 import ProjectCard from './components/ProjectCard'
+import ProjectWorks from './components/ProjectWorks'
+import ProjectUsers from './components/ProjectUsers'
 
 import waves from '@/directive/waves' // waves directive
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-import Drawer from '@/components/Drawer'
-import PageHeader from '@/components/PageHeader'
-import Avatar from '@/components/Avatar'
-import CountTo from 'vue-count-to'
+// import PageHeader from '@/components/PageHeader'
+// import Avatar from '@/components/Avatar'
 
 export default {
   name: 'ProjectView',
   components: { 
-    Pagination,
-    Drawer,
-    PageHeader,
-    Avatar,
-    CountTo,
-    ProjectCard
+    ProjectCard,
+    ProjectUsers,
+    ProjectWorks
   },
   directives: { waves },
   filters: {
@@ -184,45 +61,27 @@ export default {
       id : null,
       activeTab : 'events',
       project :{
-        name : '测试项目',
-        image: '',
-        description : '映射出特定期间已创建和已解决问题的对比情况，这可以帮助你了解整体待办事项处于增长状态还是减少状态。',
-        in_charge_user_name : 'admin',
-        in_charge_user: 1,
-        in_charge_user_avatar : '',
-        in_charge_user_sex : 1,
+        // name : '测试项目',
+        // image: '',
+        // description : '映射出特定期间已创建和已解决问题的对比情况，这可以帮助你了解整体待办事项处于增长状态还是减少状态。',
+        // in_charge_user_name : 'admin',
+        // in_charge_user: 1,
+        // in_charge_user_avatar : '',
+        // in_charge_user_sex : 1,
 
-        create_user:1,
-        create_user_name:'admin',
-        create_user_avatar: '',
-        create_user_sex : 1,
-        create_time : 1573672273,
+        // create_user:1,
+        // create_user_name:'admin',
+        // create_user_avatar: '',
+        // create_user_sex : 1,
+        // create_time : 1573672273,
 
-        stats : 1,
-        end_time : 0,
-        finish_time : 0,
+        // stats : 1,
+        // end_time : 0,
+        // finish_time : 0,
 
       },
       users:[
-        {
-          id: 1,
-          name : 'admin',
-          avatar : '',
-          sex : 1,
-        },
-        {
-          id: 2,
-          name : 'admin',
-          avatar : '',
-          sex : 1,
-          is_admin : true,
-        },
-        {
-          id: 1,
-          name : 'admin',
-          avatar : '',
-          sex : 1,
-        },
+        
       ]
     }
   },
@@ -263,31 +122,7 @@ export default {
   border-radius: 5px;
   color:#FFF;
 }
-.info_item{
-  display: flex;
-  font-size:14px;
-  color:#555;
-  margin-top:10px;
-}
-.info_item>div{
-  line-height:21px;
-}
-.info_item>div:first-child{
-  width:70px;
-  flex-grow:0;
-  flex-shrink:0;
-}
-.info_item>div:last-child{
-  flex-grow:1;
-  text-align: right;
-  color:#888;
-}
-.avatar{
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 30px;
-}
+
 
 .users_list{
   display: flex;

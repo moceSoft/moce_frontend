@@ -1,8 +1,12 @@
 import request from '@/utils/request'
 
-export function getInfo(id) {
+export function getInfo(id, needUserInfo = false) {
+  let url = 'v1/project/'+id
+  if(needUserInfo == true){
+    url += '?user=true'
+  }
   return request({
-    url: 'v1/project/'+id,
+    url: url,
     method: 'get',
   })
 }
@@ -22,7 +26,7 @@ export function fetchList(query){
 
 export function createProject(data){
   return request({
-    url: 'v1/project/create',
+    url: 'v1/project',
     method: 'post',
     data
   })
@@ -39,6 +43,40 @@ export function updateProject(data){
 export function deleteProject(data){
   return request({
     url: 'v1/project/delete',
+    method: 'post',
+    data
+  })
+}
+
+
+export function getWorkStatistics(id){
+  let url = 'v1/project/statistics?id='+id
+  return request({
+    url: url,
+    method: 'get',
+  })
+}
+
+export function deleteProjectUser(data){
+  return request({
+    url: 'v1/project/deleteuser',
+    method: 'post',
+    data
+  })
+}
+
+
+export function addProjectUser(data){
+  return request({
+    url: 'v1/project/adduser',
+    method: 'post',
+    data
+  })
+}
+
+export function setProjectUserInCharge(data){
+  return request({
+    url: 'v1/project/updateuser',
     method: 'post',
     data
   })

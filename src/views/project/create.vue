@@ -187,8 +187,15 @@ export default {
           this.submitLoading = true;
           createProject(this.project).then(response=>{
             this.submitLoading = false;
-            this.showDrawer = false;
-            this.getList();
+            this.$confirm('新增项目成功', '提示', {
+              confirmButtonText: '查看项目',
+              cancelButtonText: '返回列表',
+              type: 'success'
+            }).then(() => {
+              this.$router.replace('/project/view/'+response.data.id)
+            }).catch(() => {
+              this.$router.replace('/project')
+            });
           }).catch(error=>{
             this.submitLoading = false;
           });
