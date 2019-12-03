@@ -108,6 +108,7 @@
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="query.page" :limit.sync="query.limit" @pagination="getList" />
+    <add-user @close="visible = false" :visible="visible" :id="id" />
   </div>
 </template>
 
@@ -119,10 +120,13 @@ import { parseTime, formatTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import waves from '@/directive/waves' // waves directive
 
+import AddUser from './AddUser'
+
 export default {
   components:{
     Avatar,
-    Pagination
+    Pagination,
+    AddUser
   },
   directives: { waves },
   props: {
@@ -144,6 +148,7 @@ export default {
       },
       total : 0,
       loading : true,
+      visible : false,
     }
   },
   filters: {
@@ -193,10 +198,10 @@ export default {
       return parseTime(time, format);
     },
     handleFilter(){
-      this.getList(this.id);
+      this.getList(this.id)
     },
     addProjectUser(){
-
+      this.visible = true
     },
     deleteProjectUser(){
       deleteProjectUser()
