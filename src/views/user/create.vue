@@ -113,42 +113,46 @@ export default {
 
     var validatePass2 = (rule, value, callback) => {
       if (value === '') {
-        callback(new Error('请再次输入密码'));
+        callback(new Error('请再次输入密码'))
       } else if (value !== this.form.password) {
-        callback(new Error('两次输入密码不一致!'));
+        callback(new Error('两次输入密码不一致!'))
       } else {
-        callback();
+        callback()
       }
     }
 
     var validatePhone = (rule, value, callback) => {
       if (value === '') {
-        callback(new Error('联系方式不能为空'));
+        callback(new Error('联系方式不能为空'))
       } else if(!(/^1[3456789]\d{9}$/.test(value))){ 
         callback(new Error('请输入11位有效手机号码'));
       } else{
-        callback();
+        callback()
       }
     }
 
     var validatePhoneUnique = (rule, value, callback) => {
       validate({phone : value}).then(response=>{
         if(response.data.unique){
-          callback();
+          callback()
         }else{
-          callback(new Error('该号码已被注册，请勿重复注册'));
+          callback(new Error('该号码已被注册，请勿重复注册'))
         }
       })
     }
 
     var validateNoUnique = (rule, value, callback) => {
-      validate({no : value}).then(response=>{
-        if(response.data.unique){
-          callback();
-        }else{
-          callback(new Error('该工号已被使用，请更换工号'));
-        }
-      })
+      if(value){
+        validate({no : value}).then(response=>{
+          if(response.data.unique){
+            callback()
+          }else{
+            callback(new Error('该工号已被使用，请更换工号'))
+          }
+        })
+      }else{
+        callback()
+      }
     }
     var date = new Date()
     return {

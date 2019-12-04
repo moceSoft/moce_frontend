@@ -26,8 +26,8 @@
       >
       <el-table-column prop="avatar" label="图片" width="80" align="center">
         <!-- 图片的显示 -->
-        <template slot-scope="scope">            
-          <img :src="scope.row.avatar?scope.row.avatar:(scope.row.sex===1?avatar_female:avatar_male)"  width="60" height="60" />
+        <template slot-scope="scope">
+          <img :src="scope.row.avatar?scope.row.avatar:(scope.row.sex==1?avatar_female:avatar_male)"  width="60" height="60" />
         </template>         
       </el-table-column> 
       <el-table-column
@@ -78,7 +78,7 @@
         label="上次登录"
         width="180" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.last_login_time | formatTime }}</span>
+          <span>{{ scope.row.last_login_time | timeFormatter }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -112,7 +112,9 @@
 
 <script>
 import { fetchList } from '@/api/user'
-import { parseTime, timeFormatter, formatTime } from '@/utils'
+import { parseTime, formatTime } from '@/utils'
+
+import { Avatar } from '@/components/Avatar'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import avatar_female from '@/assets/images/avatar_female.png'
@@ -120,7 +122,7 @@ import avatar_male from '@/assets/images/avatar_male.png'
 
 export default {
   name: 'UserList',
-  components: { Pagination },
+  components: { Pagination, Avatar },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -153,7 +155,7 @@ export default {
     },
     timeFormatter(time, cFormat) {
       if(time > 0){
-        return parseTime(time, cFormat)
+        return formatTime(time, cFormat)
       }else{
         return '未曾登陆';
       }

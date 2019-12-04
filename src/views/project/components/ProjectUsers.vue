@@ -24,11 +24,19 @@
       :data="tableData"
       style="width: 100%"
       v-loading="loading"
+      @selection-change="handleSelectionChange"
       >
+      <el-table-column
+        type="selection"
+        width="35">
+      </el-table-column>
       <el-table-column prop="avatar" label="图片" width="80" align="center">
         <!-- 图片的显示 -->
         <template slot-scope="scope">
-          <Avatar :avatar="scope.row.avatar" :sex='scope.row.sex' :size="60" />
+          <el-badge value="管理" v-if="scope.row.is_in_charge" class="avatar_badge">
+            <avatar :avatar="scope.row.avatar" :sex="parseInt(scope.row.sex)" :size="60" />
+          </el-badge>
+          <avatar v-else :avatar="scope.row.avatar" :sex="parseInt(scope.row.sex)" :size="60" />
         </template>         
       </el-table-column> 
       <el-table-column
@@ -36,7 +44,6 @@
         label="姓名">
         <template slot-scope="scope">
           {{scope.row.name}}
-          <el-tag  v-if="scope.row.in_charge" type="danger" effect="dark" size="mini">管理员</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -205,6 +212,9 @@ export default {
     },
     deleteProjectUser(){
       deleteProjectUser()
+    },
+    handleSelectionChange(val){
+      console.log(val)
     }
   }
 }
@@ -250,7 +260,7 @@ export default {
   text-align: right;
   color:#888;
 }
-.avatar_badge{
+.avatar_badge>>>.el-badge__content.is-fixed{
   top:10px !important;
   right:30px !important;
 }

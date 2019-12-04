@@ -2,16 +2,16 @@
   <div class="app-container">
     <el-row :gutter="20">
       <el-col :sm="24" :md="8" :xl="6" >
-        <project-card :id="id" />
+        <project-card :id="parseInt(id)" />
       </el-col>
       <el-col :sm="24" :md="16" :xl="18">
         <el-card>
           <el-tabs v-model="activeTab">
             <el-tab-pane label="工作事项" name="events">
-              <project-works :id='id'/>
+              <project-works :id="parseInt(id)" />
             </el-tab-pane>
             <el-tab-pane label="项目成员" name="timeline">
-              <project-users  :id='id'/>
+              <project-users :id="parseInt(id)" />
             </el-tab-pane>
             <el-tab-pane label="统计分析" name="account">
             </el-tab-pane>
@@ -61,23 +61,6 @@ export default {
       id : null,
       activeTab : 'events',
       project :{
-        // name : '测试项目',
-        // image: '',
-        // description : '映射出特定期间已创建和已解决问题的对比情况，这可以帮助你了解整体待办事项处于增长状态还是减少状态。',
-        // in_charge_user_name : 'admin',
-        // in_charge_user: 1,
-        // in_charge_user_avatar : '',
-        // in_charge_user_sex : 1,
-
-        // create_user:1,
-        // create_user_name:'admin',
-        // create_user_avatar: '',
-        // create_user_sex : 1,
-        // create_time : 1573672273,
-
-        // stats : 1,
-        // end_time : 0,
-        // finish_time : 0,
 
       },
       users:[

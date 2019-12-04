@@ -165,23 +165,13 @@
 
 <script>
 import {fetchList} from '@/api/project'
+import {getWork} from '@/api/work'
 import WorkStatus from './components/WorkStatus'
 import { parseTime, formatTime } from '@/utils'
 import waves from '@/directive/waves' // waves directive
 import avatar_female from '@/assets/images/avatar_female.png'
 import avatar_male from '@/assets/images/avatar_male.png'
-
-const STATUS_TAG_TEXT = {
-  0 : '等待',
-  10 : '进行中',
-  20 : '已解决',
-  30 : '失败',
-  40 : '超时',
-  50 : '无法完成',
-  60 : '关闭',
-  70 : '未通过审核',
-  80 : '等待审核',
-}
+import { STATUS_TAG_TEXT } from '@/utils/work-status'
 
 export default {
   name: 'WorkList',
@@ -266,13 +256,21 @@ export default {
     }
   },
   created(){
-    this.fetchProjects();
+    this.fetchProjects()
+    this.getWork()
   },
   methods: {
     fetchProjects(){
       fetchList({list : true}).then(response=>{
         this.projects = response.data
         this.projectLoading = false
+      }).catch(error=>{
+
+      })
+    },
+    getWork(){
+      getWork({user : this.$store.state.user.id}).then(response=>{
+        console.log(response)
       }).catch(error=>{
 
       })

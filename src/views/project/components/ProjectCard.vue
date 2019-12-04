@@ -10,7 +10,10 @@
           <div v-else class="project_imageholder">{{project.name.substr(0, 1)}}</div>
       </div>
       <div class="box-center" style="margin-top:10px">
-        <div class="user-name text-center">{{ project.name }}</div>
+        
+        <div class="user-name text-center">
+          {{ project.name }}<el-tag size="small"  :type="project.status | statusFilter" style="margin-left:5px">{{project.status | statusText}}</el-tag>
+        </div>
         <div class="user-role text-center text-muted">
           {{project.end_time?'预期截止 ' + parseTime(project.end_time, '{y}年{m}月{d}日' ):'未设置预期时间'}}
         </div>
@@ -24,10 +27,10 @@
             </div>
           </el-button>
         </router-link>
-        <el-button type="primary" plain style="margin-left:20px">
-          <svg-icon icon-class="lock" />
+        <el-button type="primary" plain style="margin-left:40px" @click="fileProject">
+          <svg-icon :icon-class="project.status?'lock':'unlock'" />
           <div style="margin-top:8px;">
-            归档
+            {{project.status?'归档':'打开'}}
           </div>
         </el-button>
       </div>
@@ -50,7 +53,7 @@
           <div class="info_item">
             <div style="line-height: 30px">负责人：</div>
             <div class="avatar">
-              <Avatar :avatar="project.in_charge_user.avatar" :sex="project.in_charge_user.sex" :size="30" />
+              <avatar :avatar="project.in_charge_user.avatar" :sex="parseInt(project.in_charge_user.sex)" :size="30" />
               <span style="margin-left:6px">{{project.in_charge_user.name}}</span>
             </div>
           </div>
@@ -58,7 +61,7 @@
           <div class="info_item">
             <div style="line-height: 30px">创建人：</div>
             <div class="avatar">
-              <Avatar :avatar="project.create_user.avatar" :sex="project.create_user.sex" :size="30" />
+              <avatar :avatar="project.create_user.avatar" :sex="project.create_user.sex" :size="30" />
               <span style="margin-left:6px">{{project.create_user.name}}</span>
             </div>
           </div>
@@ -77,7 +80,7 @@
 </template>
 
 <script>
-import { getInfo } from '@/api/project'
+import { getInfo, fileProject } from '@/api/project'
 import Avatar from '@/components/Avatar'
 import { parseTime } from '@/utils'
 
@@ -100,6 +103,20 @@ export default {
     },
     imgFilter(img){
       return process.env.VUE_APP_IMAGE_BASE_URL + '/' + img
+    },
+    statusFilter(status) {
+      const statusMap = {
+        1 : 'success',
+        0 : 'warning'
+      }
+      return statusMap[status]
+    },
+    statusText(status) {
+      const statusTextMap = {
+        1 : '进行中',
+        0 : '已归档'
+      }
+      return statusTextMap[status]
     },
   },
   data(){
@@ -137,6 +154,26 @@ export default {
     },
     parseTime(time, format){
       return parseTime(time, format);
+    },
+    fileProject(){
+      let msg = this.project.status?'归档后，将无法为该项目指派新的工作任务？':'确定要重新打开该项目？'
+      this.$confirm(msg).then(_ => {
+        this.loading = true
+        fileProject(this.id).then( response => {
+          this.loading = false
+          this.project.status = this.project.status === 0?1:0
+          this.$message({
+            message: '项目状态更改成功',
+            type: 'success'
+          })
+        }).catch( error => {
+          this.loading = false
+        })
+        // this.$emit('close')
+        // done()
+      }).catch(_ => {
+
+      })
     }
   }
 }

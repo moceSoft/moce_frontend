@@ -2,6 +2,7 @@
 	<div>
 		<el-dialog
 		  title="添加项目成员"
+		  :show-close=false
 		  :visible="visible"
   		  :before-close="handleClose"
   		  :fullscreen="fullScreen"
@@ -26,30 +27,34 @@
 			      </el-row>
 			    </div>
 			    <div v-if="total > 0">
-					<el-popover
-						:title="user.name"
-	    				trigger="hover"
-	    				v-for="user in tableData" :key="user.id" >
-	    				<div>
-	    					{{user.department_name | getDepartment}} - {{user.position_name | getPosition}}
-	    				</div>
-						<el-checkbox class="user_item" slot="reference">
-							<div>
-								<avatar :avatar="user.avatar" :sex='user.sex' :size="60" />
-								<div style="text-align:center">{{user.name}}</div>
-							</div>
-						</el-checkbox>
-					</el-popover>
+	  				<el-checkbox-group v-model="select">
+						<el-popover
+							:title="user.name"
+		    				trigger="hover"
+		    				v-for="user in tableData" :key="user.id" 
+		    				style="margin:5px"
+		    				transition="">
+		    				<div>
+		    					{{user.department_name | getDepartment}} - {{user.position_name | getPosition}}
+		    				</div>
+							<el-checkbox class="user_item" slot="reference" :label="user.id">
+								<div>
+									<avatar :avatar="user.avatar" :sex='parseInt(user.sex)' :size="60" />
+									<div style="text-align:center">{{user.name}}</div>
+								</div>
+							</el-checkbox>
+						</el-popover>
+					</el-checkbox-group>
 				</div>
-				<div v-else>
+				<div v-else style="padding:20px;text-align:center">
 					未找到员工信息
 				</div>
-    			<pagination v-show="total>0" :total="total" :page.sync="query.page" :limit.sync="query.limit" @pagination="getList" />
+    			<pagination v-show="total>0" :total="total" :page.sync="query.page" :limit.sync="query.limit" @pagination="getList" style="padding:0"/>
 			</div>
 
 		  	<span slot="footer" class="dialog-footer">
-			    <el-button @click="close">取 消</el-button>
-			    <el-button type="primary" @click="close">确 定</el-button>
+			    <el-button @click="close">关闭</el-button>
+			    <el-button type="primary" @click="submit">确认添加</el-button>
 		  	</span>
 		</el-dialog>
 	</div>
@@ -57,13 +62,17 @@
 
 <script>
 import { fetchList } from '@/api/user'
+import { addProjectUser } from '@/api/project'
 import Avatar from '@/components/Avatar'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import waves from '@/directive/waves' // waves directive
 
 export default {
 	components:{
-		Avatar
+		Avatar,
+		Pagination
 	},
+  	directives: { waves },
 	props :{
 		visible: {
 			type : Boolean,
@@ -94,6 +103,7 @@ export default {
 	      },
 	      loading : true,
       	  total : 0,
+      	  select : [],
 		}
 	},
 	mounted(){
@@ -121,15 +131,23 @@ export default {
 			this.$emit('close')
 		},
       	handleClose(done) {
-	        this.$confirm('确认关闭？').then(_ => {
-				this.$emit('close')
-	            done()
-	        }).catch(_ => {
-
-	        })
+	        
       	},
       	handleFilter(){
-      		this.getList();
+      		this.getList()
+      	},
+      	submit(){
+      		this.$confirm('确认添加该项目成员?', '提示', {
+	          confirmButtonText: '确定',
+	          cancelButtonText: '取消',
+	          type: 'primary'
+	        }).then(()=>{
+	      		addProjectUser({project : this.id, users : this.select}).then(response=>{
+
+	      		}).catch(error=>{
+
+	      		})
+      		})
       	}
 	}
 }

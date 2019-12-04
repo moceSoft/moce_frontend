@@ -81,3 +81,10 @@ export function setProjectUserInCharge(data){
     data
   })
 }
+
+export function fileProject(id){
+  return request({
+    url : 'v1/project/file?id='+id,
+    method : 'get'
+  })
+}

@@ -43,7 +43,7 @@ export function fetchList(query){
 
 export function createUser(data){
   return request({
-    url: 'v1/user/create',
+    url: 'v1/user',
     method: 'post',
     data
   })

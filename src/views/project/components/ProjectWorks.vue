@@ -199,35 +199,41 @@
 import { getWork } from '@/api/work'
 import { getWorkStatistics } from '@/api/project'
 import CountTo from 'vue-count-to'
+import { STATUS_TAG_TEXT } from '@/utils/work-status'
+import waves from '@/directive/waves' // waves directive
 
 
 export default {
   components:{
     CountTo
   },
-  porps:{
+  props:{
     id: {
       type: Number,
     }
   },
+  directives: { waves },
   data() {
     return {
       tableData : [],
       query: {
-        title : null,
+        title : '',
         status : [],
         page: 1,
         limit: 30,
       },
+      status : STATUS_TAG_TEXT
     }
   },
-  created(){
-    this.getData(id);
+  mounted(){
+    console.log(this.id)
+    this.getData()
   },
   methods:{
-    getData(id){
-      getWork({project: id, ...this.query}).then(response=>{
-        console.log(response);
+    getData(){
+      console.log({project: this.id, ...this.query})
+      getWork({project: this.id, ...this.query}).then(response=>{
+        console.log(response)
         this.tableData = response.data.list;
       }).catch(error=>{
 
@@ -239,6 +245,9 @@ export default {
       }).catch(error=>{
 
       })
+    },
+    handleFilter(){
+      this.getData()
     }
   }
 }
