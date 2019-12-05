@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row :gutter="20">
       <el-col :sm="24" :md="8" :xl="6" >
-        <project-card :id="parseInt(id)" />
+        <project-card :id="parseInt(id)" :project="project" v-loading="loading" @file="changeStatus"/>
       </el-col>
       <el-col :sm="24" :md="16" :xl="18">
         <el-card>
@@ -11,7 +11,7 @@
               <project-works :id="parseInt(id)" />
             </el-tab-pane>
             <el-tab-pane label="项目成员" name="timeline">
-              <project-users :id="parseInt(id)" />
+              <project-users :id="parseInt(id)" :project="project" />
             </el-tab-pane>
             <el-tab-pane label="统计分析" name="account">
             </el-tab-pane>
@@ -25,6 +25,7 @@
 
 <script>
 import { fetchList as fetchUser } from '@/api/user'
+import { getInfo } from '@/api/project'
 import { parseTime } from '@/utils'
 import { getToken } from '@/utils/auth'
 
@@ -62,18 +63,41 @@ export default {
       activeTab : 'events',
       project :{
 
+        id : '',
+        name : '',
+        image: '',
+        description : '',
+        in_charge_user: {},
+        create_user: {},
+        create_time : '',
+
+        stats : '',
+        end_time : '',
+        finish_time : '',
+        is_in_charge : false,
+        is_admin : false
       },
-      users:[
-        
-      ]
+      loading : true,
     }
   },
   created(){
     this.id = this.$route.params && this.$route.params.id
+    this.getInfo(this.id)
   },
   methods:{
-    goBack(){
-
+    getInfo(id){
+      getInfo(id, true).then(response => {
+        this.project = response.data
+        this.project.img_preview = process.env.VUE_APP_IMAGE_BASE_URL + response.data.image
+        this.project.end_time = parseInt(response.data.end_time)
+        // console.log(typeof this.project.end_time)
+        this.loading = false
+      }).catch(error=>{
+        console.error(error)
+      })
+    },
+    changeStatus(){
+      this.project.status = this.project.status === 0?1:0
     }
   }
 }

@@ -7,6 +7,7 @@
   		  :before-close="handleClose"
   		  :fullscreen="fullScreen"
   		  destroy-on-close="true"
+  		  @open="init"
 		>
 			<div v-loading="loading">
 				<div class="filter-container">
@@ -104,10 +105,8 @@ export default {
 	      loading : true,
       	  total : 0,
       	  select : [],
+      	  needReload : true,
 		}
-	},
-	mounted(){
-		this.getList()
 	},
 	computed:{
 		fullScreen : ()=>{
@@ -115,6 +114,12 @@ export default {
 		}
 	},
 	methods:{
+		init(){
+			if(this.needReload){
+				this.getList()
+				this.needReload =false
+			}
+		},
 		getList(){
 			this.loading = true;
 		    fetchList({...this.query, project: this.id}).then(response => {
@@ -131,7 +136,7 @@ export default {
 			this.$emit('close')
 		},
       	handleClose(done) {
-	        
+	        done();
       	},
       	handleFilter(){
       		this.getList()
@@ -152,6 +157,7 @@ export default {
 				        })
 		      			this.close();
 						this.$emit('reload')
+						this.needReload = true
 		      		}).catch(error=>{
 
 		      		})

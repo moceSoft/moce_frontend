@@ -18,9 +18,9 @@
           {{project.end_time?'预期截止 ' + parseTime(project.end_time, '{y}年{m}月{d}日' ):'未设置预期时间'}}
         </div>
       </div>
-      <div class="box-center" style="margin-top:18px">
+      <div class="box-center" style="margin-top:18px" v-if="project.is_in_charge">
         <router-link :to="'/project/update/'+id" >
-          <el-button type="primary">
+          <el-button type="primary" >
             <i class="el-icon-edit"></i>
             <div style="margin-top:8px;">
               编辑
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { getInfo, fileProject } from '@/api/project'
+import { fileProject } from '@/api/project'
 import Avatar from '@/components/Avatar'
 import { parseTime } from '@/utils'
 
@@ -91,6 +91,9 @@ export default {
   props: {
     id: {
       type: Number,
+    },
+    project : {
+      type : Object
     }
   },
   filters: {
@@ -121,37 +124,12 @@ export default {
   },
   data(){
     return {
-      loading : true,
-      project:{
-        id : '',
-        name : '',
-        image: '',
-        description : '',
-        in_charge_user: {},
-        create_user: {},
-        create_time : '',
-
-        stats : '',
-        end_time : '',
-        finish_time : '',
-      },
+      loading : false,
     }
   },
   created(){
-    this.getInfo(this.id)
   },
   methods :{
-    getInfo(id){
-      getInfo(id, true).then(response => {
-        this.project = response.data
-        this.project.img_preview = process.env.VUE_APP_IMAGE_BASE_URL + response.data.image
-        this.project.end_time = parseInt(response.data.end_time)
-        // console.log(typeof this.project.end_time)
-        this.loading = false
-      }).catch(error=>{
-        console.error(error)
-      })
-    },
     parseTime(time, format){
       return parseTime(time, format);
     },
@@ -161,7 +139,7 @@ export default {
         this.loading = true
         fileProject(this.id).then( response => {
           this.loading = false
-          this.project.status = this.project.status === 0?1:0
+          this.$emit('file')
           this.$message({
             message: '项目状态更改成功',
             type: 'success'
@@ -169,8 +147,6 @@ export default {
         }).catch( error => {
           this.loading = false
         })
-        // this.$emit('close')
-        // done()
       }).catch(_ => {
 
       })

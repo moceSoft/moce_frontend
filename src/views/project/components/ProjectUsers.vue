@@ -13,7 +13,7 @@
             <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
               搜索
             </el-button>
-            <el-button v-waves class="filter-item" type="primary" icon="el-icon-plus" @click="addProjectUser">
+            <el-button v-waves class="filter-item" type="primary" icon="el-icon-plus" @click="addProjectUser" v-if="project.is_in_charge">
               增加成员
             </el-button>
           </el-button-group>
@@ -24,12 +24,7 @@
       :data="tableData"
       style="width: 100%"
       v-loading="loading"
-      @selection-change="handleSelectionChange"
       >
-      <el-table-column
-        type="selection"
-        width="35">
-      </el-table-column>
       <el-table-column prop="avatar" label="图片" width="80" align="center">
         <!-- 图片的显示 -->
         <template slot-scope="scope">
@@ -90,19 +85,23 @@
         label="上次登录"
         width="120" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.last_login_time | formatTime }}</span>
+          <span>{{ scope.row.last_login_time | timeFormatter }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="80" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-popover
-            placement="left"
             trigger="click">
-            <div>
-              <el-button  plain size="mini" >
-                查看
+            <div class="btn-group">
+              <router-link :to="'/user/view/'+row.id">
+                <el-button  plain size="mini" >
+                  查看
+                </el-button>
+              </router-link>
+              <el-button  plain :type="parseInt(row.is_in_charge)?'warning':'primary'" size="mini" @click="setProjectUser(row)" v-if="project.is_in_charge" >
+                {{parseInt(row.is_in_charge)?'取消管理员':'设为管理员'}}
               </el-button>
-              <el-button  plain type="danger" size="mini" @click="deleteProjectUser(row)">
+              <el-button  plain type="danger" size="mini" @click="deleteProjectUser(row)" v-if="project.is_in_charge">
                 剔除成员
               </el-button>
             </div>
@@ -115,7 +114,7 @@
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="query.page" :limit.sync="query.limit" @pagination="getList" />
-    <add-user :visible="visible" :id="id" @close="visible = false" @reload="getList(id)" />
+    <add-user v-if="project.is_in_charge" :visible="visible" :id="id" @close="visible = false" @reload="getList(id)" />
   </div>
 </template>
 
@@ -139,6 +138,9 @@ export default {
   props: {
     id: {
       type: Number,
+    },
+    project: {
+      type : Object
     }
   },
   data(){
@@ -183,6 +185,13 @@ export default {
       }
       return gendaerMap[sex];
     },
+    timeFormatter(time, cFormat) {
+      if(time > 0){
+        return formatTime(time, cFormat)
+      }else{
+        return '未曾登陆';
+      }
+    }
   },
   created(){
     // this.query.project = this.id;
@@ -213,8 +222,42 @@ export default {
     deleteProjectUser(){
       deleteProjectUser()
     },
-    handleSelectionChange(val){
-      console.log(val)
+    setProjectUser(user){
+      console.log(user);
+      console.log(this.project.in_charge_user)
+      if(user.id == this.project.in_charge_user.id){
+        this.$confirm('项目负责人的管理权限无法被取消，是否立即换负责人？','提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(()=>{
+          this.$router.push('/project/update/'+this.id)
+        }).catch(()=>{
+
+        })
+      }else{
+        let msg = '确定将'+user.name+'设置为管理员？'
+        if(parseInt(user.is_in_charge)){
+          msg = '确定取消'+user.name+'的管理员权限？'
+        }
+        this.$confirm(msg,'提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'primary'
+        }).then(()=>{
+          setProjectUserInCharge({project : this.id, user: user.id}).then((response)=>{
+            this.$message({
+              message: user.name+'管理权限修改成功',
+              type: 'success'
+            })
+            user.is_in_charge = parseInt(user.is_in_charge)?0:1
+          }).catch(error=>{
+
+          })
+        }).catch(()=>{
+
+        })
+      }
     }
   }
 }
@@ -264,6 +307,18 @@ export default {
   top:10px !important;
   right:30px !important;
 }
+
+.btn-group>>>button{
+  display: block;
+  width:100%;
+  margin-left:0;
+  margin-top:5px;
+}
+
+.btn-group>>>button:first-child{
+  margin-top:0;
+}
+
 </style>
 <style lang="scss" scoped>
  .box-center {
