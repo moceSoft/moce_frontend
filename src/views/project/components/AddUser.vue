@@ -137,17 +137,26 @@ export default {
       		this.getList()
       	},
       	submit(){
-      		this.$confirm('确认添加该项目成员?', '提示', {
-	          confirmButtonText: '确定',
-	          cancelButtonText: '取消',
-	          type: 'primary'
-	        }).then(()=>{
-	      		addProjectUser({project : this.id, users : this.select}).then(response=>{
+      		if(this.select.length == 0){
+      			this.$message('还没有选择任何员工')
+      		}else{
+	      		this.$confirm('确认添加该项目成员?', '提示', {
+		          confirmButtonText: '确定',
+		          cancelButtonText: '取消',
+		          type: 'primary'
+		        }).then(()=>{
+		      		addProjectUser({project : this.id, users : this.select}).then(response=>{
+      					this.$message({
+				          message: '添加项目成员成功',
+				          type: 'success'
+				        })
+		      			this.close();
+						this.$emit('reload')
+		      		}).catch(error=>{
 
-	      		}).catch(error=>{
-
+		      		})
 	      		})
-      		})
+      		}
       	}
 	}
 }

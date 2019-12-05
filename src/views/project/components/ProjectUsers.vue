@@ -33,7 +33,7 @@
       <el-table-column prop="avatar" label="图片" width="80" align="center">
         <!-- 图片的显示 -->
         <template slot-scope="scope">
-          <el-badge value="管理" v-if="scope.row.is_in_charge" class="avatar_badge">
+          <el-badge value="管理" v-if="parseInt(scope.row.is_in_charge)" class="avatar_badge">
             <avatar :avatar="scope.row.avatar" :sex="parseInt(scope.row.sex)" :size="60" />
           </el-badge>
           <avatar v-else :avatar="scope.row.avatar" :sex="parseInt(scope.row.sex)" :size="60" />
@@ -115,7 +115,7 @@
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="query.page" :limit.sync="query.limit" @pagination="getList" />
-    <add-user @close="visible = false" :visible="visible" :id="id" />
+    <add-user :visible="visible" :id="id" @close="visible = false" @reload="getList(id)" />
   </div>
 </template>
 
