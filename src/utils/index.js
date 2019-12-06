@@ -59,7 +59,22 @@ export function formatTime(time, option) {
 
   const diff = (now - d) / 1000
 
-  if (diff < 30) {
+  if(diff < 0){
+    if(diff > -30){
+      return '马上'
+    }else if(diff > -3600){
+      return Math.abs(Math.ceil(diff / 60)) + '分钟后'
+    }else if(diff > -3600 * 24){
+      return Math.abs(Math.ceil(diff / 3600)) + '小时后'
+    }else if(diff > -3600 * 24 * 2){
+      return '剩余1天'
+    }else{
+      let n = Math.floor( Math.abs(diff) / ( 3600 * 24 ) );
+      if( n < 7 ){
+        return '剩余' + n + '天';
+      }
+    }
+  }else if (diff < 30) {
     return '刚刚'
   } else if (diff < 3600) {
     // less 1 hour
@@ -74,6 +89,7 @@ export function formatTime(time, option) {
       return n+'天前';
     }
   }
+
   if (option) {
     return parseTime(time, option)
   } else {

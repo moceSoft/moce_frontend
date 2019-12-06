@@ -101,8 +101,8 @@ export const constantRoutes = [
       {
         path: 'assign',
         component: () => import('@/views/work/assign'),
-        name: '指派工作',
-        meta: { title: '指派工作' }
+        name: '发布工作',
+        meta: { title: '发布工作' }
       },
       {
         path: 'view/:id',

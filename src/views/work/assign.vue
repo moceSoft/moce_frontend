@@ -7,7 +7,7 @@
         <div slot="header" class="clearfix">
           <span>指派工作</span>
         </div>
-        <div style="margin-bottom:20px">
+        <div style="margin-bottom:20px" v-loading="loading">
           <el-col :xs=24 :sm=24 :lg=12>
             <el-form-item label="工作任务标题" prop="title">
               <el-input v-model="form.title"></el-input>
@@ -16,16 +16,14 @@
               <tinymce v-model="form.description" :uploadUrl="uploadUrl" :headers="headers" :height="300" />
             </el-form-item>
 
-            <el-form-item label="工作评级"  prop="rank">
+            <el-form-item label="优先级"  prop="rank">
               <el-rate
                 v-model="form.rank"
                 show-text
                 style="margin-top:10px"
                 :texts="[
                   '次要工作','普通工作','优先工作','重要工作','紧急工作'
-                ]"
-                
-                >
+                ]">
               </el-rate>
             </el-form-item>
 
@@ -40,19 +38,8 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="指派部门"  prop="project">
-              <el-select v-model="form.department" filterable placeholder="哪个部门处理该工作" @change="departmentChange"  v-loading="departmentLoading">
-                <el-option
-                  v-for="item in departments"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="指派负责人"  prop="project">
-              <el-select v-model="form.user" filterable :placeholder="form.department == ''?'请先指派部门':'请选择负责人'" :disabled="form.department==''" v-loading="userLoading">
+            <el-form-item label="工作负责人"  prop="project">
+              <el-select v-model="form.appointed_user" filterable placeholder="请选择负责人" v-loading="userLoading">
                 <el-option
                   v-for="item in users"
                   :key="item.id"
@@ -144,6 +131,7 @@
 <script>
 import { fetchList } from '@/api/user'
 import { getList } from '@/api/org'
+import { getPositions } from '@/api/position'
 import { fetchList as fetchProject } from '@/api/project'
 import { createWork } from '@/api/work'
 import Tinymce from '@/components/Tinymce'
@@ -187,6 +175,8 @@ export default {
         check_user : '',
         need_report : false
       },
+      loading : false,
+      activeName : 'department',
       userLoading : false,
       checkUserLoading: false,
       projectLoading : true,
@@ -195,6 +185,8 @@ export default {
       checkUsers: [],
       departments : [],
       projects : [],
+      positions : [],
+      positionLoading : false,
       rules:{
         title : [{ required: true, message: '请输入工作名称', trigger: 'blur' },{ min: 3, message: '长度至少需要3个字符', trigger: 'blur' }],
         check_department : [{ validator: validateCheckDepartment, trigger: 'blur' }],
@@ -206,7 +198,8 @@ export default {
   },
   created(){
     this.fetchProject()
-    this.fetchDepartment()
+    // this.fetchDepartment()
+    this.fetchUser()
   },
   mounted(){
     this.headers.Authorization = 'Bearer ' + getToken()
@@ -220,7 +213,7 @@ export default {
         this.projectLoading = false
       })
     },
-    fetchDepartment(department){
+    fetchDepartment(){
       getList().then(response=>{
         this.departments = response.data;
         this.departmentLoading = false
@@ -228,25 +221,28 @@ export default {
         this.departmentLoading = false
       })
     },
-    order(column, event){
-
+    fetchPosition(){
+      getPositions({}).then(response=>{
+        this.positions = response.data
+        this.positionLoading = false
+      }).catch(error=>{
+        this.positionLoading = false
+      })
     },
-    view(user){
-
-    },
-    handleFilter(){
-
-    },
-    projectChange(item){
-
-    },
-    departmentChange(item){
-      fetchList({list : true, department : item, project : this.form.project}).then(response=>{
+    fetchUser(){
+      fetchList({list : true, project : this.form.project}).then(response=>{
         this.users = response.data
         this.userLoading = false
       }).catch(error=>{
         this.userLoading = false
       })
+    },
+    handleClick(){
+
+    },
+    projectChange(item){
+      this.users = []
+      this.fetchUser()
     },
     checkDepartmentChange(item){
       fetchList({list : true, department : item, project : this.form.project}).then(response=>{
@@ -257,10 +253,19 @@ export default {
       })
     },
     onSubmit(){
-      console.log('submit');
+      // console.log('submit');
+      this.loading = true
       this.$refs['workForm'].validate(valid=>{
         if(valid){
           createWork(this.form).then(response=>{
+            this.loading = false
+            this.$mssage({
+              message: '工作任务发布成功',
+              type: 'success'
+            })
+            this.$router.replace('/work/view/'+response.data.id)
+          }).catch(error=>{
+            this.loading = false
           })
         }
       }).catch(error=>{

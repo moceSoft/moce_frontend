@@ -102,7 +102,7 @@
                 {{parseInt(row.is_in_charge)?'取消管理员':'设为管理员'}}
               </el-button>
               <el-button  plain type="danger" size="mini" @click="deleteProjectUser(row)" v-if="project.is_in_charge">
-                剔除成员
+                删除成员
               </el-button>
             </div>
             <el-button  slot="reference"  plain size="mini" >
@@ -219,12 +219,24 @@ export default {
     addProjectUser(){
       this.visible = true
     },
-    deleteProjectUser(){
-      deleteProjectUser()
+    deleteProjectUser(user){
+      this.$confirm('确定将'+user.name+'从该项目中移除？','提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'primary'
+      }).then(() =>{
+        deleteProjectUser({project : this.id, user: user.id}).then(response=>{
+          this.$message({
+            message: '已成功删除项目成员',
+            type: 'success'
+          })
+          this.getList(this.id)
+        }).catch(error=>{
+
+        })
+      })
     },
     setProjectUser(user){
-      console.log(user);
-      console.log(this.project.in_charge_user)
       if(user.id == this.project.in_charge_user.id){
         this.$confirm('项目负责人的管理权限无法被取消，是否立即换负责人？','提示', {
           confirmButtonText: '确定',

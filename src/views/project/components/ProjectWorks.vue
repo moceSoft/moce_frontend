@@ -62,7 +62,7 @@
     </el-row>
     <div class="filter-container" style="margin-top:40px">
       <el-row :gutter="4">
-        <el-col :lg="4" :xs="24" :sm="8" :md="6">
+        <el-col :lg="4" :xs="24" :sm="8" :md="8">
           <el-input v-model="query.title" placeholder="工作主题" class="filter-item" @keyup.enter.native="handleFilter" />
         </el-col>
 
@@ -77,10 +77,15 @@
           </el-select>
         </el-col>
 
-        <el-col :lg="3" :xs="24" :sm="6" :md="4">
-          <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-            搜索
-          </el-button>
+        <el-col :lg="16" :xs="24" :sm="24" :md="24">          
+          <el-button-group> 
+            <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+              搜索
+            </el-button>
+            <el-button v-waves class="filter-item" type="primary" icon="el-icon-plus" @click="addWork">
+              发布工作
+            </el-button>
+          </el-button-group>
         </el-col>
 
       </el-row>
@@ -248,6 +253,9 @@ export default {
     },
     handleFilter(){
       this.getData()
+    },
+    addWork(){
+
     }
   }
 }

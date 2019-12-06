@@ -1,7 +1,15 @@
 <template>
-  <el-tag :type="statusTag">
-    {{statusText}}
-  </el-tag>
+  <div class="status">
+    <el-tag :type="statusTag" v-if="operational || !operable">
+      {{statusText}}
+    </el-tag >
+    <el-dropdown split-button="true" v-else size="mini" :type="statusTag" >
+      {{statusText}}
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item v-for="(status, i) in statuses" :key="i">{{status}}</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+  </div>
 </template>
 
 
@@ -38,10 +46,17 @@ export default {
       type: Number,
       default: 0
     },
+    appointedUser:{
+      type : Number
+    },
+    operable:{
+      type : Boolean,
+      default : false
+    }
   },
   data() {
     return {
-      
+      statuses : STATUS_TAG_TEXT
     }
   },
   computed: {
@@ -52,18 +67,17 @@ export default {
     statusTag : function(){
     	return STATUS_TAG_TYPE[this.status]
     },
+    operational : function(){
+      return this.$store.state.user.id === this.appointedUser
+    }
   },
   methods: {
-    handleCopy(text, event) {
-      clip(text, event)
-    },
-    clipboardSuccess() {
-      this.$message({
-        message: 'Copy successfully',
-        type: 'success',
-        duration: 1500
-      })
-    }
+
   }
 }
 </script>
+<style scoped>
+  .status{
+    display: inline-block;
+  }
+</style>

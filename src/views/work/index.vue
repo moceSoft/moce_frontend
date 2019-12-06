@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
-
     <div class="filter-container">
       <el-row :gutter="4">
+
         <el-col :lg="4" :xs="24" :sm="8" :md="6">
-          <el-select v-model="query.project" placeholder="请选择项目" style="width:100%" @change="handleFilter">
+          <el-select v-model="query.project" placeholder="请选择项目" style="width:100%" @change="handleFilter" v-loading="projectLoading">
             <el-option
               v-for="item in projects"
               :key="item.id"
@@ -13,6 +13,7 @@
             </el-option>
           </el-select>
         </el-col>
+
         <el-col :lg="4" :xs="24" :sm="8" :md="6">
           <el-input v-model="query.title" placeholder="工作主题" class="filter-item" @keyup.enter.native="handleFilter" />
         </el-col>
@@ -38,6 +39,7 @@
     </div>
 
     <el-table
+      v-loading="loading"
       :data="list"
       style="width: 100%">
       <el-table-column
@@ -50,11 +52,21 @@
       </el-table-column>
 
       <el-table-column
+        prop="title"
+        label="工作主题"
+        width="200"
+        show-overflow-tooltip=true
+      >
+      </el-table-column>
+
+      <el-table-column
         prop="project"
         label="所属项目"
-        width="240">
+        width="160"
+        show-overflow-tooltip=true
+        >
         <template slot-scope="{row}">
-          <router-link :to="'/project/view/'+row.id" v-if="row.project">
+          <router-link :to="'/project/view/'+row.project" v-if="row.project">
             <el-button type="text" size="mini">
               {{row.project_name}}
             </el-button>
@@ -63,12 +75,6 @@
             无
           </div>
         </template>
-      </el-table-column>
-
-      <el-table-column
-        prop="title"
-        label="工作主题"
-        width="240">
       </el-table-column>
 
       <el-table-column
@@ -91,25 +97,27 @@
       <el-table-column
         prop="end_time"
         label="截止时间" 
-        align="center">
+        align="center"
+        width="170">
         <template slot-scope="{row}">
-          {{ row.end_time | timeFormatter }}
+          {{ row.end_time | timeFormatter('{y}年{m}月{d}日') }}
         </template>
       </el-table-column>
 
       <el-table-column
-        prop="need_review"
-        label="需要审核" 
+        prop="need_check"
+        label="需审核" 
         align="center">
         <template slot-scope="{row}">
-          {{ row.need_review | reviewFilter }}
+          {{ row.need_check | reviewFilter }}
         </template>
       </el-table-column>
 
       <el-table-column
         prop="need_report"
-        label="需要工作报告"
-        align="center">
+        label="需工作报告"
+        align="center"
+        width="120">
         <template slot-scope="{row}">
           {{ row.need_report | reviewFilter }}
         </template>
@@ -118,9 +126,10 @@
       <el-table-column
         prop="status"
         label="当前进度"
-        align="center">
+        align="center"
+        width="180">
         <template slot-scope="{row}">
-          <workstatus :status="row.status" /> 
+          <work-status :status="parseInt(row.status)" :appointedUser="parseInt(row.appointed_user)" :operable="true"/> 
         </template>
       </el-table-column>
 
@@ -160,6 +169,9 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <pagination v-show="total>0" :total="total" :page.sync="query.page" :limit.sync="query.limit" @pagination="getList" />
+
   </div>
 </template>
 
@@ -172,11 +184,13 @@ import waves from '@/directive/waves' // waves directive
 import avatar_female from '@/assets/images/avatar_female.png'
 import avatar_male from '@/assets/images/avatar_male.png'
 import { STATUS_TAG_TEXT } from '@/utils/work-status'
+import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
   name: 'WorkList',
   components : {
-    workstatus : WorkStatus
+    WorkStatus,
+    Pagination
   },
   directives: { waves },
   filters: {
@@ -190,56 +204,16 @@ export default {
 
     timeFormatter(time, cFormat) {
       if(time > 0){
-        return parseTime(time, cFormat)
+        return formatTime(time, cFormat)
       }else{
-        return '';
+        return '未设置';
       }
     }
   },
   data() {
     return {
-      list:[
-        {
-          id: 1,
-          title : 'test',
-          project: 0,
-          project_name : null,
-          parent : {
-
-          },
-          rank : 3,
-          need_review : 0,
-          need_report : 0,
-          end_time : 0,
-          create_user : 1,
-          create_user_avatar : null,
-          create_user_name : 'admin',
-          create_user_sex : 1,
-          create_time : 1574768525,
-          status : 0,
-
-        },
-        {
-          id: 2,
-          title : '测试工作任务',
-          project: 1,
-          project_name : '测试项目',
-          parent : {
-
-          },
-          rank : 2,
-          need_review : 1,
-          need_report : 0,
-          end_time : 0,
-          create_user : 1,
-          create_user_avatar : null,
-          create_user_name : 'admin',
-          create_user_sex : 1,
-          create_time : 1574768525,
-          status : 20,
-
-        }
-      ],
+      list:[],
+      loading: true,
       query: {
         project: '',
         title : '',
@@ -247,7 +221,7 @@ export default {
         page: 1,
         limit: 30,
       },
-      count : 0,
+      total : 0,
       status : STATUS_TAG_TEXT,
       projects : [],
       projectLoading : true,
@@ -257,7 +231,7 @@ export default {
   },
   created(){
     this.fetchProjects()
-    this.getWork()
+    this.getList()
   },
   methods: {
     fetchProjects(){
@@ -268,9 +242,12 @@ export default {
 
       })
     },
-    getWork(){
-      getWork({user : this.$store.state.user.id}).then(response=>{
-        console.log(response)
+    getList(){
+      this.loading = true
+      getWork({user : this.$store.state.user.id, ...this.query}).then(response=>{
+        this.list = response.data.list
+        this.total = response.data.count
+        this.loading = false
       }).catch(error=>{
 
       })
