@@ -1,13 +1,13 @@
 <template>
   <div class="app-container">
 
-    <el-form ref="workForm" :rules="rules" :model="form" label-width="120px">
+    <el-form ref="workForm" :rules="rules" :model="form" label-width="120px" v-loading="loading">
       <el-row  justify="center">
         <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>指派工作</span>
+          <span>编辑工作</span>
         </div>
-        <div style="margin-bottom:20px" v-loading="loading">
+        <div style="margin-bottom:20px">
           <el-col :xs=24 :sm=24 :lg=12>
             <el-form-item label="工作任务标题" prop="title">
               <el-input v-model="form.title"></el-input>
@@ -28,13 +28,7 @@
             </el-form-item>
 
             <el-form-item label="所属项目"  prop="project">
-              <el-select v-model="form.project" filterable clearable placeholder="该工作属于哪一个项目" @change="projectChange" v-loading="projectLoading">
-                <el-option
-                  v-for="item in projects"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
+              <el-select v-model="form.project_name" :disabled=true>
               </el-select>
             </el-form-item>
 
@@ -47,14 +41,18 @@
                   :value="item.id">
                 </el-option>
               </el-select>
+              <el-button plain size="mini" style="margin-left:10px;" @click="appointToMe('appointed_user')">
+                指派给我
+              </el-button>
             </el-form-item>
 
-            <el-form-item label="工作开始时间" prop="begin_time">
+            <el-form-item label="工作开始时间" prop="create_time">
               <el-date-picker
                 v-model="form.begin_time"
                 align="right"
                 type="date"
                 placeholder="选择日期"
+                value-format="timestamp"
                 >
               </el-date-picker>
             </el-form-item>
@@ -64,6 +62,7 @@
                 align="right"
                 type="date"
                 placeholder="选择日期"
+                value-format="timestamp"
                 >
               </el-date-picker>
             </el-form-item>
@@ -72,8 +71,8 @@
                 v-model="form.need_check"
                 active-color="#13ce66"
                 inactive-color="#D7D7D7"
-                active-value="1"
-                inactive-value="0"
+                active-value=1
+                inactive-value=0
                 >
               </el-switch>
             </el-form-item>
@@ -88,7 +87,7 @@
                     :value="item.id">
                   </el-option>
                 </el-select>
-                <el-button plain size="mini" style="margin-left:10px;">
+                <el-button plain size="mini" style="margin-left:10px;" @click="appointToMe('check_user')">
                   指派给我
                 </el-button>
               </el-form-item>
@@ -99,8 +98,8 @@
                 v-model="form.need_report"
                 active-color="#13ce66"
                 inactive-color="#D7D7D7"
-                active-value="1"
-                inactive-value="0">
+                active-value=1
+                inactive-value=0>
               </el-switch>
             </el-form-item>
           </el-col>
@@ -123,7 +122,7 @@ import { fetchList } from '@/api/user'
 import { getList } from '@/api/org'
 import { getPositions } from '@/api/position'
 import { fetchList as fetchProject } from '@/api/project'
-import { createWork } from '@/api/work'
+import { updateWork, getInfo } from '@/api/work'
 import Tinymce from '@/components/Tinymce'
 import { getToken } from '@/utils/auth'
 
@@ -133,7 +132,6 @@ export default {
     Tinymce
   },
   data() {
-
     var validateCheckUser = (rule, value, callback) => {
       if(this.form.need_check == 1){
         if (value === '') {
@@ -143,6 +141,7 @@ export default {
       callback();
     }
     return {
+      id : '',
       form : {
         title : '',
         rank : 2,
@@ -153,13 +152,13 @@ export default {
         end_time: '',
         need_check : 0,
         check_user : '',
-        need_report : false
+        need_report : 0
       },
-      loading : false,
+      loading : true,
       userLoading : false,
+      checkUserLoading: false,
       projectLoading : true,
       users: [],
-      departments : [],
       projects : [],
       rules:{
         title : [{ required: true, message: '请输入工作名称', trigger: 'blur' },{ min: 3, message: '长度至少需要3个字符', trigger: 'blur' }],
@@ -170,38 +169,14 @@ export default {
     }
   },
   created(){
-    this.fetchProject()
-    // this.fetchDepartment()
-    this.fetchUser()
+    this.id = this.$route.params && this.$route.params.id
+    // this.fetchUser()
+    this.fetchInfo()
   },
   mounted(){
     this.headers.Authorization = 'Bearer ' + getToken()
   },
   methods:{
-    fetchProject() {
-      fetchProject({list : true}).then(response => {
-        this.projects = (response.data)
-        this.projectLoading = false
-      }).catch(error=>{
-        this.projectLoading = false
-      })
-    },
-    fetchDepartment(){
-      getList().then(response=>{
-        this.departments = response.data;
-        this.departmentLoading = false
-      }).catch(error=>{
-        this.departmentLoading = false
-      })
-    },
-    fetchPosition(){
-      getPositions({}).then(response=>{
-        this.positions = response.data
-        this.positionLoading = false
-      }).catch(error=>{
-        this.positionLoading = false
-      })
-    },
     fetchUser(){
       fetchList({list : true, project : this.form.project}).then(response=>{
         this.users = response.data
@@ -210,8 +185,28 @@ export default {
         this.userLoading = false
       })
     },
+    fetchInfo(){
+      getInfo(this.id).then(response=>{
+        this.form = response.data
+        let beginTime = parseInt(response.data.begin_time)
+        let endTime = parseInt(response.data.end_time)
+        this.form.end_time = endTime > 0?endTime * 1000:''
+        console.log(this.form.end_time)
+        this.form.begin_time = beginTime > 0?beginTime * 1000:''
+        this.form.rank = parseInt(response.data.rank)
+        this.form.check_user = this.form.check_user == '0'?'': this.form.check_user
+        this.fetchUser()
+        this.loading = false
+      }).catch(error=>{
+        this.loading = false
+        this.$router.replace('/work')
+      })
+    },
     handleClick(){
 
+    },
+    appointToMe(attr){
+      this.form[attr] = this.$store.state.user.id
     },
     projectChange(item){
       this.users = []
@@ -222,10 +217,10 @@ export default {
       this.loading = true
       this.$refs['workForm'].validate(valid=>{
         if(valid){
-          createWork(this.form).then(response=>{
+          updateWork(this.id, this.form).then(response=>{
             this.loading = false
             this.$message({
-              message: '工作任务发布成功',
+              message: '工作任务编辑成功',
               type: 'success'
             })
             this.$router.replace('/work/view/'+response.data.id)

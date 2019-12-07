@@ -4,12 +4,13 @@
       <el-col :md="18"  :xs="24" >
         <el-card class="box-card" style="margin-bottom:10px">
           <div slot="header" class="clearfix">
-            <div style="float: left;margin-top:5px">#{{info.id}} {{info.title}}
+            <div style="float: left;margin-top:5px">
               <router-link to="/work/index" >
-                <el-button size="mini" plain icon="el-icon-back" style="margin-left:10px">
+                <el-button size="mini" plain icon="el-icon-back" style="margin-right:10px">
                   返回
                 </el-button>
               </router-link>
+              #{{info.id}} {{info.title}}
             </div>
             <div style="float: right;margin-top:5px">
               <el-popover
@@ -39,7 +40,7 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div>
-            <el-row :gutter="4">
+            <el-row :gutter="4" v-loading="workLoading">
               <el-col :md="12" :xs="24" >
                 <div class="item">
                   <div>主题：</div>
@@ -47,7 +48,7 @@
                 </div>
                 <div class="item">
                   <div>当前状态：</div>
-                  <div><workstatus :status="info.status" /></div>
+                  <div><workstatus :status="info.status" :operable="operable" /></div>
                 </div>
                 <div class="item item_user">
                   <div>负责人：</div>
@@ -90,12 +91,14 @@
                   <div>
                     <el-switch
                       disabled
-                      v-model="info.need_review"
+                      v-model="info.need_check"
                       active-color="#13ce66"
-                      inactive-color="#C0C4CC">
+                      inactive-color="#C0C4CC"
+                      active-value=1
+                      inactive-value=0>
                     </el-switch>
 
-                    <router-link :to="'/user/view/'+info.create_user" style="margin-left:15px"  v-if="info.need_review">          
+                    <router-link :to="'/user/view/'+info.create_user" style="margin-left:15px"  v-if="parseInt(info.need_check)">          
                       <img :src="info.create_user_avatar?info.create_user_avatar:(info.create_user_sex===1?avatar_female:avatar_male)"  width="30" height="30" />
                       <div>{{info.create_user_name}}</div>
                     </router-link>
@@ -109,7 +112,9 @@
                       disabled
                       v-model="info.need_report"
                       active-color="#13ce66"
-                      inactive-color="#C0C4CC">
+                      inactive-color="#C0C4CC"
+                      active-value=1
+                      inactive-value=0>
                     </el-switch>
                     <el-button plain size="mini" type="primary" v-if="info.report" style="margin-left:15px" @click="viewReport">
                       查看报告
@@ -117,11 +122,11 @@
                   </div>
                 </div>
 
-                <div>
+                <div style="border:1px dashed #E7E7E7;border-radius: 4px;padding:0 20px">
                   <!-- <div style="height:40px;line-height:40px;font-size:13px;color:#454545">描述</div> -->
-                  <div style="font-size:13px;color:#454545" v-if="info.description">{{info.description}}</div>
-                  <div v-else style="font-size:18px;color:#D7D7D7;text-align:center;padding-top:40px;font-weight: bolder">
-                    未添加描述
+                  <div style="font-size:13px;color:#454545" v-if="info.description"  v-html="info.description"></div>
+                  <div v-else style="font-size:18px;color:#D7D7D7;text-align:center;padding:40px;font-weight: bolder">
+                    未添加工作描述
                   </div>
                 </div>
               </el-col>
@@ -139,7 +144,7 @@
             </div>
             <div style="border:1px solid #E7E7E7;height:auto;padding:10px">
               <el-row :gutter="10" style="width:100%">
-                <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3" v-for="(file, i) in info.enclosures" :key="i" >
+                <el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3" v-for="(file, i) in enclosures" :key="i" >
                   <el-link type="primary" class="enclosure">
                     <Enclosure :file="file" />
                   </el-link>
@@ -257,13 +262,6 @@ export default {
         return '';
       }
     },
-    formateLog(log){
-      if(log.action=="work/create"){
-        return '创建了该工作'
-      }else if(log.value && log.value.status){
-        return  
-      }
-    },
     endTimeFilter(time, format){
       if(time > 0){
         return parseTime(time, format)
@@ -298,40 +296,40 @@ export default {
         create_time : 1574768525,
         finish_time : 1574769525,
         status : 0,
-        enclosures : [
-          {
-            name: '测试.xlxs',
-            path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
-            type : 'xlsx',
-            timestamp : 1574769525
-          },
-          {
-            name: '测试.xlxs',
-            path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
-            type : 'xlsx',
-            timestamp : 1574769525
-          },
-          {
-            name: '测试.xlxs',
-            path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
-            type : 'xlsx',
-            timestamp : 1574769525
-          },
-          {
-            name: '测试.xlxs',
-            path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
-            type : 'xlsx',
-            timestamp : 1574769525
-          },
-          {
-            name: '测试.xlxs',
-            path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
-            type : 'xlsx',
-            timestamp : 1574769525
-          },
-        ],
-        report : "这是一个测试报告",
       },
+
+      enclosures : [
+        {
+          name: '测试.xlxs',
+          path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
+          type : 'xlsx',
+          timestamp : 1574769525
+        },
+        {
+          name: '测试.xlxs',
+          path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
+          type : 'xlsx',
+          timestamp : 1574769525
+        },
+        {
+          name: '测试.xlxs',
+          path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
+          type : 'xlsx',
+          timestamp : 1574769525
+        },
+        {
+          name: '测试.xlxs',
+          path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
+          type : 'xlsx',
+          timestamp : 1574769525
+        },
+        {
+          name: '测试.xlxs',
+          path : 'https://panjiachen.gitee.io/vue-element-admin/#/components/dropzone',
+          type : 'xlsx',
+          timestamp : 1574769525
+        },
+      ],
       logs: [
         {
           user: 1,
@@ -371,7 +369,12 @@ export default {
   },
   created(){
     const id = this.$route.params && this.$route.params.id
-    // this.getInfo(id)
+    this.getInfo(id)
+  },
+  computed:{
+    operable:function(){
+      return this.$store.state.user.id === this.info.appointed_user
+    }
   },
   methods: {
     getInfo(id){
@@ -379,7 +382,7 @@ export default {
         this.info = response.data
         this.workLoading = false
       }).catch(error=>{
-
+        this.workLoading = false
       })
     },
     handleFilter(){
