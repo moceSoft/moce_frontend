@@ -13,7 +13,6 @@ export function getWork(query){
   })
 }
 
-
 export function getInfo(id){
   let url = 'v1/work/'+ id;
   return request({
@@ -43,4 +42,27 @@ export function updateWork(id, data){
     method : 'put',
     data
   })
+}
+
+export function getLog(id, query){
+  let url = 'v1/work/log/'+id
+  let params = []
+  Object.keys(query).map( key =>{
+    params.push( key + '=' + query[key]);
+  })
+  url += "?"+params.join("&");
+  return request({
+    url : url,
+    method : 'get',
+  })
+}
+
+export function updateStatus(id, data){
+  let url = 'v1/work/status/'+id
+  return request({
+    url : url,
+    method : 'post',
+    data
+  })
+
 }

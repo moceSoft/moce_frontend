@@ -48,14 +48,14 @@
                 </div>
                 <div class="item">
                   <div>当前状态：</div>
-                  <div><workstatus :status="info.status" :operable="operable" /></div>
+                  <div><workstatus :status="parseInt(info.status)" :operable="operable" /></div>
                 </div>
                 <div class="item item_user">
                   <div>负责人：</div>
                   <div>
-                    <router-link :to="'/user/view/'+info.create_user">          
-                      <img :src="info.create_user_avatar?info.create_user_avatar:(info.create_user_sex===1?avatar_female:avatar_male)"  width="30" height="30" />
-                      <div>{{info.create_user_name}}</div>
+                    <router-link :to="'/user/view/'+info.appointed_user">          
+                      <img :src="info.appointed_user_avatar?info.appointed_user_avatar:(info.appointed_user_sex==1?avatar_female:avatar_male)"  width="30" height="30" />
+                      <div>{{info.appointed_user_name}}</div>
                     </router-link>
                   </div>
                 </div>
@@ -98,9 +98,9 @@
                       inactive-value=0>
                     </el-switch>
 
-                    <router-link :to="'/user/view/'+info.create_user" style="margin-left:15px"  v-if="parseInt(info.need_check)">          
-                      <img :src="info.create_user_avatar?info.create_user_avatar:(info.create_user_sex===1?avatar_female:avatar_male)"  width="30" height="30" />
-                      <div>{{info.create_user_name}}</div>
+                    <router-link :to="'/user/view/'+info.check_user" style="margin-left:15px"  v-if="parseInt(info.need_check)">          
+                      <img :src="info.check_user_avatar?info.check_user_avatar:(info.check_user_sex==1?avatar_female:avatar_male)"  width="30" height="30" />
+                      <div>{{info.check_user_name}}</div>
                     </router-link>
                   </div>
                 </div>
@@ -164,7 +164,7 @@
               <div>
                 <router-link :to="'/user/view/'+info.create_user" class="log_avatar">
                   <el-button plain>
-                    <img :src="info.create_user_avatar?info.create_user_avatar:(info.create_user_sex===1?avatar_female:avatar_male)"  width="60" height="60" />
+                    <img :src="info.create_user_avatar?info.create_user_avatar:(info.create_user_sex==1?avatar_female:avatar_male)"  width="60" height="60" />
                     <div class="log_user_name">{{info.create_user_name}}</div>
                   </el-button>
                 </router-link>
@@ -178,28 +178,7 @@
           </div>
         </el-card>
         <el-card class="box-card" style="margin-bottom:10px">
-          <div >
-            <span style="color:#656565;font-size:15px">操作记录</span>
-            <el-row :gutter="4" style="padding-top:20px">
-              <el-col :md="24" :xs="24" >
-                <el-timeline>
-                  <el-timeline-item
-                    v-for="(log, index) in logs"
-                    :key="index"
-                    :timestamp="log.timestamp | parseTime('{y}年{m}月{d}日 {h}:{i}')">
-                    <div class="log_item">
-                      <router-link :to="'/user/view/'+info.create_user" class="log_avatar">          
-                        <img :src="info.create_user_avatar?info.create_user_avatar:(info.create_user_sex===1?avatar_female:avatar_male)"  width="30" height="30" />
-                        <div class="log_user_name">{{info.create_user_name}}</div>
-                      </router-link>
-                      <LogItem :log="log" />
-                    </div>
-                  </el-timeline-item>
-                </el-timeline>
-              </el-col>
-            </el-row>
-            
-          </div>
+          <log :id="parseInt(id)" />
         </el-card>
       </el-col>
     </el-row>
@@ -220,7 +199,7 @@
 <script>
 import { getInfo } from '@/api/work'
 import WorkStatus from './components/WorkStatus'
-import LogItem from './components/LogItem'
+import Log from './components/Log'
 import Enclosure from './components/Enclosure'
 import { parseTime, formatTime } from '@/utils'
 import waves from '@/directive/waves' // waves directive
@@ -242,7 +221,7 @@ export default {
   name: 'info',
   components : {
     workstatus : WorkStatus,
-    LogItem,
+    Log,
     Enclosure
   },
   directives: { waves },
@@ -272,6 +251,7 @@ export default {
   },
   data() {
     return {
+      id : '',
       info: {
         id: 1,
         title : 'test',
@@ -330,34 +310,6 @@ export default {
           timestamp : 1574769525
         },
       ],
-      logs: [
-        {
-          user: 1,
-          user_avatar : null,
-          user_name : 'admin',
-          user_sex : 2,
-          action : 'work/update',
-          value : {status : 20},
-          timestamp: 1574769825,
-        },
-        {
-          user: 1,
-          user_avatar : null,
-          user_name : 'admin',
-          user_sex : 1,
-          action : 'work/update',
-          value : {status : 10},
-          timestamp: 1574768825,
-        },
-        {
-          user: 1,
-          user_avatar : null,
-          user_name : 'admin',
-          user_sex : 1,
-          action : 'work/create',
-          timestamp: 1574768525,
-        }
-      ],
       count : 0,
       status : STATUS_TAG_TEXT,
       projects : [],
@@ -368,8 +320,8 @@ export default {
     }
   },
   created(){
-    const id = this.$route.params && this.$route.params.id
-    this.getInfo(id)
+    this.id = this.$route.params && this.$route.params.id
+    this.getInfo(this.id)
   },
   computed:{
     operable:function(){
@@ -429,13 +381,6 @@ export default {
   padding-top:2px;
 }
 
-.log_item{
-  display: flex;
-  align-items: center;
-}
-.log_item .log_avatar{
-  text-align: center;
-}
 .enclosure{
   margin-bottom: 5px;padding:0;display:flex;width: 100%;
 }

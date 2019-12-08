@@ -3,7 +3,7 @@
     <el-tag :type="statusTag" v-if="operational || !operable">
       {{statusText}}
     </el-tag >
-    <el-dropdown split-button="true" v-else size="mini" :type="statusTag" >
+    <el-dropdown split-button v-else size="mini" :type="statusTag" >
       {{statusText}}
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item v-for="(status, i) in statuses" :key="i">{{status}}</el-dropdown-item>
