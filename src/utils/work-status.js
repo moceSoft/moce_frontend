@@ -10,3 +10,12 @@ export const STATUS_TAG_TEXT = {
   70 : '未通过审核',
   80 : '等待审核',
 }
+
+export const STATUS_OPERABLE_TAG_TEXT = {
+  0 : '等待处理',
+  10 : '进行中',
+  20 : '完成',
+  50 : '无法完成',
+  60 : '关闭',
+  70 : '通过审核',
+}

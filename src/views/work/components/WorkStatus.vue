@@ -6,7 +6,7 @@
     <el-dropdown split-button v-else size="mini" :type="statusTag" >
       {{statusText}}
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item v-for="(status, i) in statuses" :key="i">{{status}}</el-dropdown-item>
+        <el-dropdown-item v-for="(status, i) in operableStatuses" :key="i">{{status}}</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </div>
@@ -28,15 +28,24 @@ const STATUS_TAG_TYPE = {
 }
 
 const STATUS_TAG_TEXT = {
-	0 : '等待',
+	0 : '等待处理',
 	10 : '进行中',
-	20 : '已解决',
+	20 : '完成',
 	30 : '失败',
 	40 : '超时',
 	50 : '无法完成',
 	60 : '关闭',
 	70 : '未通过审核',
 	80 : '等待审核',
+}
+
+const STATUS_OPERABLE_TAG_TEXT = {
+  0 : '等待处理',
+  10 : '进行中',
+  20 : '完成',
+  50 : '无法完成',
+  60 : '关闭',
+  70 : '通过审核',
 }
 
 export default {
@@ -56,7 +65,8 @@ export default {
   },
   data() {
     return {
-      statuses : STATUS_TAG_TEXT
+      statuses : STATUS_TAG_TEXT,
+      operableStatuses : STATUS_OPERABLE_TAG_TEXT
     }
   },
   computed: {

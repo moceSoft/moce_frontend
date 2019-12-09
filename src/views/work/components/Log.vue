@@ -17,6 +17,12 @@
             </div>
           </el-timeline-item>
         </el-timeline>
+
+        <div class="pager" v-if="pageCount > 1">
+          <el-button type="primary" size="small" icon="el-icon-arrow-left" :disabled="query.page < 2">上一页</el-button>
+          <div>{{query.page}} / {{pageCount}}</div>
+          <el-button type="primary" size="small" :disabled="query.page >= pageCount" >下一页<i class="el-icon-arrow-right el-icon--right" ></i></el-button>
+        </div>
       </el-col>
     </el-row>
     
@@ -54,6 +60,11 @@ export default {
     console.log(this.id)
     this.getLog()
   },
+  computed:{
+    pageCount : function(){
+      return Math.ceil(this.count / this.query.pageSize)
+    }
+  },
   methods:{
     getLog(){
       this.loading = true
@@ -78,4 +89,10 @@ export default {
   text-align: center;
   display: inline-block;
 }
+.pager{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 </style>
