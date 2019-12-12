@@ -13,21 +13,7 @@
               #{{info.id}} {{info.title}}
             </div>
             <div style="float: right;margin-top:5px">
-              <el-popover
-                placement="bottom"
-                trigger="click">
-                <div>
-                  <el-button size="mini">
-                    已解决
-                  </el-button>
-                  <el-button size="mini">
-                    无法完成
-                  </el-button>
-                </div>
-                <el-button slot="reference" size="mini">
-                  解决结果
-                </el-button>
-              </el-popover>
+              
               <router-link :to="'/work/update/'+info.id" >
                 <el-button type="primary" size="mini" plain style="margin-left:5px">
                   编辑任务
@@ -48,7 +34,10 @@
                 </div>
                 <div class="item">
                   <div>当前状态：</div>
-                  <div><workstatus :status="parseInt(info.status)" :operable="operable" /></div>
+                  <div>
+                    <work-status :status="parseInt(info.status)" v-if="!operable" />
+                    <work-status-button :status="parseInt(info.status)" :reviewUser="parseInt(info.check_user)" v-else />
+                  </div>
                 </div>
                 <div class="item item_user">
                   <div>负责人：</div>
@@ -199,10 +188,12 @@
 <script>
 import { getInfo } from '@/api/work'
 import WorkStatus from './components/WorkStatus'
+import WorkStatusButton from './components/WorkStatusButton'
 import Log from './components/Log'
 import Enclosure from './components/Enclosure'
 import { parseTime, formatTime } from '@/utils'
 import waves from '@/directive/waves' // waves directive
+import { STATUS_OPERABLE_TAG_TEXT } from '@/utils/work-status'
 import avatar_female from '@/assets/images/avatar_female.png'
 import avatar_male from '@/assets/images/avatar_male.png'
 
@@ -220,9 +211,10 @@ const STATUS_TAG_TEXT = {
 export default {
   name: 'info',
   components : {
-    workstatus : WorkStatus,
+    WorkStatus,
     Log,
-    Enclosure
+    Enclosure,
+    WorkStatusButton
   },
   directives: { waves },
   filters: {
@@ -277,7 +269,7 @@ export default {
         finish_time : 1574769525,
         status : 0,
       },
-
+      operableStatuses : STATUS_OPERABLE_TAG_TEXT,
       enclosures : [
         {
           name: '测试.xlxs',
@@ -325,7 +317,7 @@ export default {
   },
   computed:{
     operable:function(){
-      return this.$store.state.user.id === this.info.appointed_user
+      return this.$store.state.user.id === this.info.appointed_user || this.$store.state.user.id === this.info.check_user
     }
   },
   methods: {

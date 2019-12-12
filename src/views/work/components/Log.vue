@@ -13,7 +13,7 @@
                 <avatar :avatar="log.avatar" :sex="parseInt(log.sex)" size=30 />
                 <div class="log_user_name">{{log.name}}</div>
               </div>
-              <log-item :log="log" />
+              <log-item :log="log" v-on:show-detail="showDetail(log)"/>
             </div>
           </el-timeline-item>
         </el-timeline>
@@ -25,6 +25,16 @@
         </div>
       </el-col>
     </el-row>
+    <el-dialog
+      title="详细日志"
+      :visible.sync="visible"
+      width="600px">
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="visible = false">关 闭</el-button>
+      </span>
+    </el-dialog>
+
     
   </div>
 </template>
@@ -53,11 +63,11 @@ export default {
         pageSize : 8
       },
       count : 0,
-      loading: true
+      loading: true,
+      visible: false
     }
   },
   mounted(){
-    console.log(this.id)
     this.getLog()
   },
   computed:{
@@ -75,6 +85,9 @@ export default {
       }).catch(error=>{
         this.loading = false
       })
+    },
+    showDetail(log){
+      this.visible = true
     }
   }
 }

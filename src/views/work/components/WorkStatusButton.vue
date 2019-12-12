@@ -1,8 +1,13 @@
 <template>
   <div class="status">
-    <el-tag :type="statusTag">
-      {{statusText}}
-    </el-tag >
+    <el-dropdown >
+      <el-button  size="mini" :type="statusTag">{{statusText}} <i class="el-icon-arrow-down el-icon--right"></i></el-button>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item v-for="(status, i) in operableStatuses" :key="i">
+          {{status}}
+        </el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
   </div>
 </template>
 
@@ -43,15 +48,17 @@ const STATUS_OPERABLE_TAG_TEXT = {
 }
 
 export default {
-  name: 'WorkStatus',
+  name: 'WorkStatusButton',
   props: {
     status: {
       type: Number,
       default: 0
     },
-    appointedUser:{
-      type : Number
+    reviewUser:{
+      type : Number,
+      default: 0
     },
+
   },
   data() {
     return {
